@@ -1,0 +1,259 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dartz/dartz.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:khedma/Core/constants/app_emums.dart';
+import 'package:khedma/Core/errors/extentions.dart';
+import 'package:khedma/Core/errors/failures.dart';
+import 'package:khedma/Core/network/network_info.dart';
+import 'package:khedma/features/auth/data/datasources/auth_local_data_source.dart';
+import 'package:khedma/features/auth/data/datasources/auth_remote_data_source.dart';
+import 'package:khedma/features/auth/data/models/user_model.dart';
+import 'package:khedma/features/auth/domain/entities/user_entity.dart';
+import 'package:khedma/features/auth/domain/repositories/auth_repo.dart';
+
+class AuthRepositoryImpl implements AuthRepo {
+  final AuthRemoteDataSource remoteDataSource;
+  final AuthLocalDataSource localDataSource;
+  final NetworkInfo networkInfo;
+
+  AuthRepositoryImpl({
+    required this.remoteDataSource,
+    required this.localDataSource,
+    required this.networkInfo,
+  });
+
+  @override
+  Future<Either<Failure, UserEntity>> loginWithEmail(
+    UserType userType,
+    String email,
+    String password,
+  ) async {
+    return _performAuthAction(
+      () => remoteDataSource.loginWithEmail(userType, email, password),
+    );
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> registerWithEmail(
+    UserType userType,
+    String email,
+    String password,
+  ) async {
+    return _performAuthAction(
+      () => remoteDataSource.registerWithEmail(userType, email, password),
+    );
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> loginWithGoogle(UserType userType) async {
+    return _performAuthAction(() => remoteDataSource.loginWithGoogle(userType));
+  }
+
+  @override
+  Future<Either<Failure, UserEntity>> loginWithFacebook(
+    UserType userType,
+  ) async {
+    return _performAuthAction(
+      () => remoteDataSource.loginWithFacebook(userType),
+    );
+  }
+
+  // دالة مساعدة لتنفيذ عمليات المصادقة وتخزين النتيجة محلياً
+  Future<Either<Failure, UserEntity>> _performAuthAction(
+    Future<UserModel> Function() action,
+  ) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+    try {
+      final user = await action();
+      await localDataSource.cacheUser(user);
+      return Right(user);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendEmailVerification() async {
+    try {
+      await remoteDataSource.sendEmailVerification();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> checkEmailVerified() async {
+    try {
+      final isVerified = await remoteDataSource.checkEmailVerified();
+      if (isVerified) {
+        // تحديث حالة التحقق في التخزين المحلي
+        final cachedUser = await localDataSource.getCachedUser();
+        if (cachedUser != null) {
+          final updatedUser = cachedUser.copyWith(isEmailVerified: true);
+          await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
+        }
+      }
+      return Right(isVerified);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> sendPasswordResetEmail(String email) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
+    try {
+      await remoteDataSource.sendPasswordResetEmail(email);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> logout() async {
+    try {
+      await remoteDataSource.logout();
+      await localDataSource.clearUser();
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, UserEntity?>> getCachedUser() async {
+    try {
+      final user = await localDataSource.getCachedUser();
+      return Right(user);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> isFirstTime() async {
+    try {
+      final result = await localDataSource.isFirstTime();
+      return Right(result);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setFirstTimeDone() async {
+    try {
+      await localDataSource.setFirstTimeDone();
+      return const Right(null);
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setUserType(UserType userType) async {
+    try {
+      // await remoteDataSource.updateUserProfile(userType: userType);
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        final updatedUser = cachedUser.copyWith(userType: userType);
+        await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
+      }
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> setLocationSelected() async {
+    return _updateUserField('isLocationSelected', true);
+  }
+
+  @override
+  Future<Either<Failure, void>> setLocationAdress(
+    LocationEntity location,
+  ) async {
+    return _updateUserField('location', location);
+  }
+
+  @override
+  Future<Either<Failure, void>> setProfileCompleted() async {
+    return _updateUserField('isProfileCompleted', true);
+  }
+
+  // معايا مشكله مع هذه الداله
+  // دالة مساعدة لتحديث حقل معين في Firestore والمحلي
+  Future<Either<Failure, void>> _updateUserField(
+    String field,
+    var value,
+  ) async {
+    try {
+      final uid = FirebaseAuth.instance.currentUser?.uid;
+      if (uid == null) return const Left(AuthFailure('Not authenticated'));
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        field: value,
+      });
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        final updatedUser = cachedUser.copyWith(
+          isLocationSelected: field == 'isLocationSelected'
+              ? value
+              : cachedUser.isLocationSelected,
+          isProfileCompleted: field == 'isProfileCompleted'
+              ? value
+              : cachedUser.isProfileCompleted,
+        );
+        await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
+      }
+      return const Right(null);
+    } catch (e) {
+      return Left(ServerFailure('Failed to update $field'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateUserProfile({
+    String? name,
+    String? phone,
+    LocationEntity? location,
+    XFile? image,
+  }) async {
+    try {
+      await remoteDataSource.updateUserProfile(
+        name: name,
+        phone: phone,
+        location: LocationModel.fromEntity(location!),
+        imageFile: image,
+      );
+      // تحديث التخزين المحلي
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        final updatedUser = cachedUser.copyWith(
+          name: name ?? cachedUser.name,
+          phone: phone ?? cachedUser.phone,
+          location: location ?? cachedUser.location,
+
+          // الصورة تحتاج إلى معالجة منفصلة (لنحصل على الرابط الجديد)
+        );
+        // للحصول على رابط الصورة الجديد، يمكن قراءة المستخدم المحدث من remote
+        // هنا نبسطها ونترك المستخدم المحلي كما هو، وسيتم تحديثه لاحقاً عند getCachedUser
+        await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
+      }
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    }
+  }
+}
