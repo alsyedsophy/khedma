@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dartz/dartz.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/Core/errors/extentions.dart';
@@ -178,50 +176,101 @@ class AuthRepositoryImpl implements AuthRepo {
 
   @override
   Future<Either<Failure, void>> setLocationSelected() async {
-    return _updateUserField('isLocationSelected', true);
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure('N Internet Connection'));
+    }
+
+    try {
+      await remoteDataSource.setLocationSelected();
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        final updated = cachedUser.copyWith(isLocationSelected: true);
+        await localDataSource.cacheUser(UserModel.fromEntity(updated));
+      }
+      return Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
   }
 
   @override
   Future<Either<Failure, void>> setLocationAdress(
     LocationEntity location,
   ) async {
-    return _updateUserField('location', location);
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure('Not Internet Connected'));
+    }
+    try {
+      await remoteDataSource.setLocationAddress(
+        LocationModel.fromEntity(location),
+      );
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        final updated = cachedUser.copyWith(
+          location: LocationModel.fromEntity(location),
+        );
+        await localDataSource.cacheUser(UserModel.fromEntity(updated));
+      }
+      return Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
   }
 
   @override
   Future<Either<Failure, void>> setProfileCompleted() async {
-    return _updateUserField('isProfileCompleted', true);
+    if (!await networkInfo.isConnected) {
+      return Left(NetworkFailure('N Internet Connection'));
+    }
+
+    try {
+      await remoteDataSource.setProfileCompleted();
+      final cachedUser = await localDataSource.getCachedUser();
+      if (cachedUser != null) {
+        final updated = cachedUser.copyWith(isProfileCompleted: true);
+        await localDataSource.cacheUser(UserModel.fromEntity(updated));
+      }
+      return Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    }
   }
 
   // معايا مشكله مع هذه الداله
   // دالة مساعدة لتحديث حقل معين في Firestore والمحلي
-  Future<Either<Failure, void>> _updateUserField(
-    String field,
-    var value,
-  ) async {
-    try {
-      final uid = FirebaseAuth.instance.currentUser?.uid;
-      if (uid == null) return const Left(AuthFailure('Not authenticated'));
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        field: value,
-      });
-      final cachedUser = await localDataSource.getCachedUser();
-      if (cachedUser != null) {
-        final updatedUser = cachedUser.copyWith(
-          isLocationSelected: field == 'isLocationSelected'
-              ? value
-              : cachedUser.isLocationSelected,
-          isProfileCompleted: field == 'isProfileCompleted'
-              ? value
-              : cachedUser.isProfileCompleted,
-        );
-        await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
-      }
-      return const Right(null);
-    } catch (e) {
-      return Left(ServerFailure('Failed to update $field'));
-    }
-  }
+  // Future<Either<Failure, void>> _updateUserField(
+  //   String field,
+  //   var value,
+  // ) async {
+  //   try {
+  //     final uid = FirebaseAuth.instance.currentUser?.uid;
+  //     if (uid == null) return const Left(AuthFailure('Not authenticated'));
+  //     await FirebaseFirestore.instance.collection('users').doc(uid).update({
+  //       field: value,
+  //     });
+  //     final cachedUser = await localDataSource.getCachedUser();
+  //     if (cachedUser != null) {
+  //       final updatedUser = cachedUser.copyWith(
+  //         isLocationSelected: field == 'isLocationSelected'
+  //             ? value
+  //             : cachedUser.isLocationSelected,
+  //         isProfileCompleted: field == 'isProfileCompleted'
+  //             ? value
+  //             : cachedUser.isProfileCompleted,
+  //       );
+  //       await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
+  //     }
+  //     return const Right(null);
+  //   } catch (e) {
+  //     return Left(ServerFailure('Failed to update $field'));
+  //   }
+  // }
 
   @override
   Future<Either<Failure, void>> updateUserProfile({
@@ -230,11 +279,14 @@ class AuthRepositoryImpl implements AuthRepo {
     LocationEntity? location,
     XFile? image,
   }) async {
+    if (!await networkInfo.isConnected) {
+      return const Left(NetworkFailure('No internet connection'));
+    }
     try {
       await remoteDataSource.updateUserProfile(
         name: name,
         phone: phone,
-        location: LocationModel.fromEntity(location!),
+        location: location != null ? LocationModel.fromEntity(location) : null,
         imageFile: image,
       );
       // تحديث التخزين المحلي

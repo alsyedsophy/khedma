@@ -6,6 +6,7 @@ import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/num_extentions.dart';
 import 'package:khedma/Core/extentions/widget_extentions.dart';
+import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/cubit/Verify%20Email/verify_email_cubit.dart';
@@ -24,55 +25,45 @@ class VerifyEmail extends StatelessWidget {
   }
 }
 
-class _VerifyEmailView extends StatelessWidget {
+class _VerifyEmailView extends StatefulWidget {
   const _VerifyEmailView();
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: BlocListener<AuthCubit, AuthState>(
-        listener: _authListener,
-        child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppSpacing.h_24.verticalSpace,
-              const LogoAndBack(),
-              AppSpacing.h_36.verticalSpace,
-
-              Text(
-                'We sent a verification email. Please check it then click "Checked".',
-                style: AppTypography.headlineMedium,
-              ),
-
-              AppSpacing.h_48.verticalSpace,
-
-              AppButton(
-                label: 'Checked',
-                onPressed: () =>
-                    context.read<AuthCubit>().sendEmailVerification(),
-              ),
-
-              AppSpacing.h_12.verticalSpace,
-
-              const _ResendSection(),
-            ],
-          ).paddingHorizontal(AppSpacing.h_24),
-        ),
-      ),
-    );
-  }
+  State<_VerifyEmailView> createState() => _VerifyEmailViewState();
 }
 
-void _authListener(BuildContext context, AuthState state) {
-  final message = state.errorMessage ?? state.successMessage;
+class _VerifyEmailViewState extends State<_VerifyEmailView>
+    with AuthEventListenerMixin {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppSpacing.h_24.verticalSpace,
+            const LogoAndBack(),
+            AppSpacing.h_36.verticalSpace,
 
-  if (message != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message, style: AppTypography.bodyMedium)),
+            Text(
+              'We sent a verification email. Please check it then click "Checked".',
+              style: AppTypography.headlineMedium,
+            ),
+
+            AppSpacing.h_48.verticalSpace,
+
+            AppButton(
+              label: 'Checked',
+              onPressed: () => context.read<AuthCubit>().checkEmailVerified(),
+            ),
+
+            AppSpacing.h_12.verticalSpace,
+
+            const _ResendSection(),
+          ],
+        ).paddingHorizontal(AppSpacing.h_24),
+      ),
     );
-
-    context.read<AuthCubit>().clearMessages();
   }
 }
 

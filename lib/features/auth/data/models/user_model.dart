@@ -103,26 +103,26 @@ class UserModel extends UserEntity {
 class LocationModel extends LocationEntity {
   const LocationModel({
     required super.latitude,
-    required super.langitude,
+    required super.longitude,
     required super.address,
   });
 
   factory LocationModel.fromMap(Map<String, dynamic> data) => LocationModel(
     latitude: (data['latitude'] as num).toDouble(),
-    langitude: (data['langitude'] as num).toDouble(),
+    longitude: (data['longitude'] as num).toDouble(),
     address: data['address'],
   );
 
   Map<String, dynamic> toMap() => {
     'latitude': latitude,
-    'langitude': langitude,
+    'longitude': longitude,
     'address': address,
   };
 
   factory LocationModel.fromEntity(LocationEntity location) {
     return LocationModel(
       latitude: location.latitude,
-      langitude: location.langitude,
+      longitude: location.longitude,
       address: location.address,
     );
   }

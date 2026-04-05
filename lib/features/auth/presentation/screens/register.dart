@@ -9,6 +9,7 @@ import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
+import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
@@ -23,7 +24,7 @@ class Register extends StatefulWidget {
   State<Register> createState() => _RegisterState();
 }
 
-class _RegisterState extends State<Register> {
+class _RegisterState extends State<Register> with AuthEventListenerMixin {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -52,7 +53,7 @@ class _RegisterState extends State<Register> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<AuthCubit, AuthState>(
+      body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           return AppLoadingOverlay(
             isLoading: state.isLoading,
@@ -153,7 +154,7 @@ class _RegisterState extends State<Register> {
                     AppSpacing.h_24.verticalSpace,
                     AppButton(
                       label: 'Sign Up',
-                      onPressed: _agreeToTerms ? () => _register : null,
+                      onPressed: _agreeToTerms ? () => _register() : null,
                     ),
                     AppSpacing.h_30.verticalSpace,
                     Center(
@@ -217,19 +218,6 @@ class _RegisterState extends State<Register> {
               ),
             ),
           );
-        },
-        listener: (context, state) {
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage.toString(),
-                  style: AppTypography.bodySmall,
-                ),
-              ),
-            );
-            context.read<AuthCubit>().clearMessages();
-          }
         },
       ),
     );

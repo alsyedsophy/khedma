@@ -4,13 +4,16 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khedma/Core/Theme/app_colors.dart';
 import 'package:khedma/Core/Widgets/app_button.dart';
+import 'package:khedma/Core/Widgets/app_loading.dart';
 import 'package:khedma/Core/constants/app_assets.dart';
 import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
 import 'package:khedma/Core/routing/app_routs.dart';
+import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
+import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 
 class OnBoarding extends StatefulWidget {
   const OnBoarding({super.key});
@@ -19,84 +22,66 @@ class OnBoarding extends StatefulWidget {
   State<OnBoarding> createState() => _OnBoardingState();
 }
 
-class _OnBoardingState extends State<OnBoarding> {
-  bool isProvider = false;
-  bool isService = false;
-  UserType userType = UserType.provider;
+class _OnBoardingState extends State<OnBoarding> with AuthEventListenerMixin {
+  UserType? _selectedType;
+
+  void _selectType(UserType type) {
+    if (_selectedType == type) return;
+    setState(() {
+      _selectedType = type;
+    });
+  }
+
+  void _onNext() {
+    final selected = _selectedType;
+    if (selected == null) return;
+    context.read<AuthCubit>().completeOnboarding(selected);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppSpacing.h_16.verticalSpace,
-            SvgPicture.asset(
-              AppAssets.logo,
-              width: AppSpacing.w_28,
-              height: AppSpacing.h_30,
+      body: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, state) {
+          return AppLoadingOverlay(
+            isLoading: state.isLoading,
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppSpacing.h_16.verticalSpace,
+                  SvgPicture.asset(
+                    AppAssets.logo,
+                    width: AppSpacing.w_28,
+                    height: AppSpacing.h_30,
+                  ),
+                  AppSpacing.h_30.verticalSpace,
+                  Text('I am', style: AppTypography.headlineLarge),
+                  AppSpacing.h_30.verticalSpace,
+                  GestureDetector(
+                    onTap: () => _selectType(UserType.provider),
+                    child: UserTypeWidget(
+                      selected: _selectedType == UserType.provider,
+                      userType: 'Service Provider',
+                      title: 'I offer professional service',
+                    ),
+                  ),
+                  AppSpacing.h_16.verticalSpace,
+                  GestureDetector(
+                    onTap: () => _selectType(UserType.service),
+                    child: UserTypeWidget(
+                      selected: _selectedType == UserType.service,
+                      userType: 'Looking For Service',
+                      title: 'I am looking for home service',
+                    ),
+                  ),
+                  AppSpacing.h_48.verticalSpace,
+                  AppButton(onPressed: _onNext, label: 'Next'),
+                ],
+              ).paddingHorizontal(AppSpacing.w_24),
             ),
-            AppSpacing.h_30.verticalSpace,
-            Text('I am', style: AppTypography.headlineLarge),
-            AppSpacing.h_30.verticalSpace,
-            GestureDetector(
-              onTap: () {
-                if (!isProvider && !isService) {
-                  setState(() {
-                    isProvider = !isProvider;
-                    userType = UserType.provider;
-                  });
-                }
-                if (isService && !isProvider) {
-                  setState(() {
-                    isProvider = !isProvider;
-                    isService = !isService;
-                    userType = UserType.provider;
-                  });
-                }
-                context.read<AuthCubit>().completeOnboarding(userType);
-              },
-              child: UserTypeWidget(
-                selected: isProvider,
-                userType: 'Service Provider',
-                title: 'I offer professional service',
-              ),
-            ),
-            AppSpacing.h_16.verticalSpace,
-            GestureDetector(
-              onTap: () {
-                if (!isProvider && !isService) {
-                  setState(() {
-                    isService = !isService;
-                    userType = UserType.service;
-                  });
-                }
-                if (isProvider && !isService) {
-                  setState(() {
-                    isProvider = !isProvider;
-                    isService = !isService;
-                    userType = UserType.service;
-                  });
-                }
-                context.read<AuthCubit>().completeOnboarding(userType);
-              },
-              child: UserTypeWidget(
-                selected: isService,
-                userType: 'Looking For Service',
-                title: 'I am looking for home service',
-              ),
-            ),
-            AppSpacing.h_48.verticalSpace,
-            AppButton(
-              onPressed: () {
-                if (isProvider || isService) {
-                  context.pushNamed(AppRoutes.login, extra: userType);
-                }
-              },
-              label: 'Next',
-            ),
-          ],
-        ).paddingHorizontal(AppSpacing.w_24),
+          );
+        },
       ),
     );
   }

@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:image_picker/image_picker.dart';
@@ -5,9 +8,25 @@ import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/features/auth/domain/entities/user_entity.dart';
 import 'package:khedma/features/auth/domain/usecases/auth_use_cases.dart';
 import 'package:khedma/features/auth/domain/usecases/set_location_address_use_case.dart';
+import 'package:khedma/features/auth/presentation/cubit/Auth/auth_events.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
+  final _eventController = StreamController<AuthEvents>.broadcast();
+  Stream<AuthEvents> get event => _eventController.stream;
+
+  void _errorEvent(String message) {
+    if (!_eventController.isClosed) {
+      _eventController.add(AuthErrorEvent(message));
+    }
+  }
+
+  void _successEvent(String message) {
+    if (!_eventController.isClosed) {
+      _eventController.add(AuthSuccessEvent(message));
+    }
+  }
+
   final CheckEmailVerifiedUseCase checkEmailVerifiedUseCase;
   final CreateAcountUseCase createAcountUseCase;
   final GetCachedUserUseCase getCachedUserUseCase;
@@ -23,7 +42,7 @@ class AuthCubit extends Cubit<AuthState> {
   final SetUserTypeUseCase setUserTypeUseCase;
   final SetProfileCompletedUseCase setProfileCompletedUseCase;
   final UpdateUserUseCase updateUserUseCase;
-  final VerifiyEmailUseCase verifiyEmailUseCase;
+  final VerifyEmailUseCase verifiyEmailUseCase;
   AuthCubit({
     required this.checkEmailVerifiedUseCase,
     required this.createAcountUseCase,
@@ -72,14 +91,16 @@ class AuthCubit extends Cubit<AuthState> {
     // التحقق من وجود مستخدم مخبأ
     final userResult = await getCachedUserUseCase();
     userResult.fold(
-      (failure) => emit(
-        state.copyWith(
-          isLoading: false,
-          onboardingStatus: OnboardingStatus.done,
-          authStatus: AuthStatus.unauthenticated,
-          errorMessage: failure.message,
-        ),
-      ),
+      (failure) {
+        //  فشل الـ cache لا يستدعي snackbar في الـ startup — نسجل فقط
+        emit(
+          state.copyWith(
+            isLoading: false,
+            onboardingStatus: OnboardingStatus.done,
+            authStatus: AuthStatus.unauthenticated,
+          ),
+        );
+      },
       (user) => emit(
         state.copyWith(
           isLoading: false,
@@ -96,15 +117,17 @@ class AuthCubit extends Cubit<AuthState> {
     String email,
     String password,
   ) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await loginWithEmailUseCase(
       userType: userType,
       email: email,
       password: password,
     );
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (user) => emit(
         state.copyWith(
           isLoading: false,
@@ -121,15 +144,17 @@ class AuthCubit extends Cubit<AuthState> {
     String email,
     String password,
   ) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await createAcountUseCase(
       userType: userType,
       email: email,
       password: password,
     );
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (user) => emit(
         state.copyWith(
           isLoading: false,
@@ -144,11 +169,13 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// تسجيل الدخول باستخدام Google
   Future<void> loginWithGoogle(UserType userType) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await loginWithGoogleUseCase(userType: userType);
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (user) => emit(
         state.copyWith(
           isLoading: false,
@@ -162,11 +189,13 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// تسجيل الدخول باستخدام Facebook
   Future<void> loginWithFacebook(UserType userType) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await loginWithFacebookUseCase(userType: userType);
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (user) => emit(
         state.copyWith(
           isLoading: false,
@@ -180,17 +209,17 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// إرسال رابط التحقق من البريد الإلكتروني
   Future<void> sendEmailVerification() async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await verifiyEmailUseCase();
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
-      (_) => emit(
-        state.copyWith(
-          isLoading: false,
-          successMessage: 'تم إرسال رابط التحقق إلى بريدك الإلكتروني',
-        ),
-      ),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
+      (_) {
+        _successEvent('تم إرسال رابط التحقق إلى بريدك الإلكتروني');
+        emit(state.copyWith(isLoading: false));
+      },
     );
   }
 
@@ -199,29 +228,26 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
     final result = await checkEmailVerifiedUseCase();
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (isVerified) {
         if (isVerified) {
           // تحديث حالة المستخدم
           final updatedUser = state.user?.copyWith(isEmailVerified: true);
+          _successEvent('تم التحقق من بريدك الإلكتروني');
           emit(
             state.copyWith(
               isLoading: false,
               user: updatedUser,
               authStatus: AuthStatus
                   .locationNotSelected, // بعد التحقق، ننتقل إلى اختيار الموقع
-              successMessage: 'تم التحقق من بريدك الإلكتروني',
             ),
           );
         } else {
-          emit(
-            state.copyWith(
-              isLoading: false,
-              errorMessage:
-                  'لم يتم التحقق بعد. يرجى التحقق من بريدك الإلكتروني',
-            ),
-          );
+          _errorEvent('لم يتم التحقق بعد. يرجى التحقق من بريدك الإلكتروني');
+          emit(state.copyWith(isLoading: false));
         }
       },
     );
@@ -229,17 +255,17 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// إرسال رابط إعادة تعيين كلمة المرور
   Future<void> forgotPassword(String email) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await sendPasswordResetEmailUseCase(email: email);
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
-      (_) => emit(
-        state.copyWith(
-          isLoading: false,
-          successMessage: 'تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني',
-        ),
-      ),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
+      (_) {
+        _successEvent('تم إرسال رابط إعادة التعيين إلى بريدك الإلكتروني');
+        emit(state.copyWith(isLoading: false));
+      },
     );
   }
 
@@ -248,8 +274,10 @@ class AuthCubit extends Cubit<AuthState> {
     emit(state.copyWith(isLoading: true));
     final result = await logoutUseCase();
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (_) => emit(
         const AuthState(
           isLoading: false,
@@ -262,18 +290,31 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// إكمال شاشة الترحيب (onboarding) وتعيين نوع المستخدم
   Future<void> completeOnboarding(UserType userType) async {
+    emit(state.copyWith(isLoading: true));
     // أولاً: تعيين نوع المستخدم
     final result = await setUserTypeUseCase(userType: userType);
     result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.message)),
+      (failure) {
+        emit(state.copyWith(isLoading: false));
+        _errorEvent(failure.message);
+      },
       (_) async {
         // ثم تعيين أول مرة كمستخدم
-        await setFirstTimeDoneUseCase();
-        emit(
-          state.copyWith(
-            onboardingStatus: OnboardingStatus.done,
-            authStatus:
-                AuthStatus.unauthenticated, // بعدها يذهب إلى تسجيل الدخول
+        final firstTimeResult = await setFirstTimeDoneUseCase();
+        log(state.isFirstTime.toString());
+        firstTimeResult.fold(
+          (failure) {
+            emit(state.copyWith(isLoading: false));
+            _errorEvent(failure.message);
+          },
+          (_) => emit(
+            state.copyWith(
+              isLoading: false,
+              onboardingStatus: OnboardingStatus.done,
+              authStatus:
+                  AuthStatus.unauthenticated, // بعدها يذهب إلى تسجيل الدخول
+              selectedUserType: userType,
+            ),
           ),
         );
       },
@@ -283,39 +324,33 @@ class AuthCubit extends Cubit<AuthState> {
   /// تعيين أن المستخدم اختار الموقع (يُستدعى من صفحة الموقع بعد التأكيد)
   Future<void> locationSelected() async {
     final result = await setLocationSelectedUseCase();
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.message)),
-      (_) {
-        final updatedUser = state.user?.copyWith(isLocationSelected: true);
-        emit(
-          state.copyWith(
-            user: updatedUser,
-            authStatus: AuthStatus.profileIncomplete,
-          ),
-        );
-      },
-    );
+    result.fold((failure) => _errorEvent(failure.message), (_) {
+      final updatedUser = state.user?.copyWith(isLocationSelected: true);
+      emit(
+        state.copyWith(
+          user: updatedUser,
+          authStatus: AuthStatus.profileIncomplete,
+        ),
+      );
+    });
   }
 
   Future<void> locationAddress(LatLng latLng, String address) async {
     final location = LocationEntity(
       latitude: latLng.latitude,
-      langitude: latLng.longitude,
+      longitude: latLng.longitude,
       address: address,
     );
-    final result = await setLocationAddressUseCase(location);
-    result.fold(
-      (failure) => emit(state.copyWith(errorMessage: failure.message)),
-      (_) {
-        final updatedUser = state.user?.copyWith(location: location);
-        emit(
-          state.copyWith(
-            user: updatedUser,
-            authStatus: AuthStatus.profileIncomplete,
-          ),
-        );
-      },
-    );
+    final result = await setLocationAddressUseCase(latLng, address);
+    result.fold((failure) => _errorEvent(failure.message), (_) {
+      final updatedUser = state.user?.copyWith(location: location);
+      emit(
+        state.copyWith(
+          user: updatedUser,
+          authStatus: AuthStatus.profileIncomplete,
+        ),
+      );
+    });
   }
 
   /// تحديث الملف الشخصي (الاسم، الهاتف، العنوان، الصورة)
@@ -325,7 +360,7 @@ class AuthCubit extends Cubit<AuthState> {
     LocationEntity? location,
     XFile? image,
   }) async {
-    emit(state.copyWith(isLoading: true, clearError: true));
+    emit(state.copyWith(isLoading: true));
     final result = await updateUserUseCase(
       name: name,
       phone: phone,
@@ -333,8 +368,10 @@ class AuthCubit extends Cubit<AuthState> {
       image: image,
     );
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (_) {
         // بعد التحديث، نرسل حدث اكتمال الملف
         _completeProfile();
@@ -346,24 +383,27 @@ class AuthCubit extends Cubit<AuthState> {
   Future<void> _completeProfile() async {
     final result = await setProfileCompletedUseCase();
     result.fold(
-      (failure) =>
-          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
+      (failure) {
+        _errorEvent(failure.message);
+        emit(state.copyWith(isLoading: false));
+      },
       (_) {
         final updatedUser = state.user?.copyWith(isProfileCompleted: true);
+        _successEvent('تم إكمال الملف الشخصي بنجاح');
         emit(
           state.copyWith(
             isLoading: false,
             user: updatedUser,
             authStatus: AuthStatus.fullySetup,
-            successMessage: 'تم إكمال الملف الشخصي بنجاح',
           ),
         );
       },
     );
   }
 
-  /// مسح الأخطاء والرسائل
-  void clearMessages() {
-    emit(state.copyWith(clearError: true, clearSuccess: true));
+  @override
+  Future<void> close() {
+    _eventController.close();
+    return super.close();
   }
 }

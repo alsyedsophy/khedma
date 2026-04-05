@@ -14,6 +14,7 @@ import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
 import 'package:khedma/Core/routing/app_routs.dart';
+import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/widgets/app_text_form_field.dart';
@@ -26,7 +27,7 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<Login> with AuthEventListenerMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -51,16 +52,7 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
-          log(state.toString());
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.errorMessage.toString())),
-            );
-            context.read<AuthCubit>().clearMessages();
-          }
-        },
+      body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) => AppLoadingOverlay(
           isLoading: state.isLoading,
           child: SafeArea(
@@ -105,7 +97,7 @@ class _LoginState extends State<Login> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: () =>
-                          context.pushNamed(AppRoutes.completeProfile),
+                          context.pushNamed(AppRoutes.forgotPassword),
 
                       child: Text(
                         'Forgot Password?',

@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:khedma/app/dependenc_injections.dart';
+import 'package:khedma/app/dependency_injections.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Location/location_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Location/location_state.dart';

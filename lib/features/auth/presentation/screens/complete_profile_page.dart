@@ -7,6 +7,7 @@ import 'package:khedma/Core/Theme/app_colors.dart';
 import 'package:khedma/Core/Utils/validators.dart';
 import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
+import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
@@ -20,7 +21,8 @@ class CompleteProfilePage extends StatefulWidget {
   State<CompleteProfilePage> createState() => _CompleteProfilePageState();
 }
 
-class _CompleteProfilePageState extends State<CompleteProfilePage> {
+class _CompleteProfilePageState extends State<CompleteProfilePage>
+    with AuthEventListenerMixin {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -60,21 +62,8 @@ class _CompleteProfilePageState extends State<CompleteProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.errorMessage!)));
-            context.read<AuthCubit>().clearMessages();
-          } else if (state.successMessage != null) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(state.successMessage!)));
-            context.read<AuthCubit>().clearMessages();
-          }
-        },
-        child: SafeArea(
+      body: BlocBuilder<AuthCubit, AuthState>(
+        builder: (context, state) => SafeArea(
           child: Form(
             key: _formKey,
             child: Column(

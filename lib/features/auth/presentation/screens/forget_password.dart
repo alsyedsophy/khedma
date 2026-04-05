@@ -6,6 +6,7 @@ import 'package:khedma/Core/Widgets/app_loading.dart';
 import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
+import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
@@ -18,7 +19,8 @@ class ForgetPassword extends StatefulWidget {
   State<ForgetPassword> createState() => _ForgetPasswordState();
 }
 
-class _ForgetPasswordState extends State<ForgetPassword> {
+class _ForgetPasswordState extends State<ForgetPassword>
+    with AuthEventListenerMixin {
   final _emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
@@ -37,20 +39,7 @@ class _ForgetPasswordState extends State<ForgetPassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<AuthCubit, AuthState>(
-        listener: (context, state) {
-          if (state.errorMessage != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  state.errorMessage.toString(),
-                  style: AppTypography.bodyMedium,
-                ),
-              ),
-            );
-            context.read<AuthCubit>().clearMessages();
-          }
-        },
+      body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           return AppLoadingOverlay(
             isLoading: state.isLoading,

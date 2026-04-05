@@ -12,6 +12,8 @@ abstract class AuthLocalDataSource {
   Future<void> clearUser(); // مسح بيانات المستخدم
   Future<bool> isFirstTime(); // التحقق من أول مرة
   Future<void> setFirstTimeDone(); // تعيين أول مرة كمستخدم
+  // Future<void> setLocationSelecte();
+  // Future<void> setProfileCompleted();
 }
 
 class AuthLocalDataSourceImpl implements AuthLocalDataSource {
@@ -63,4 +65,14 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> setFirstTimeDone() async {
     await sharedPreferences.setBool(_firstTimeKey, false);
   }
+
+  // @override
+  // Future<void> setLocationSelecte() async{
+  //   await sharedPreferences.setBool('isLocationSelected', true);
+  // }
+
+  // @override
+  // Future<void> setProfileCompleted() async{
+  //   await sharedPreferences.setBool('isProfileCompleted', true);
+  // }
 }

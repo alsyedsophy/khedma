@@ -1,4 +1,7 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khedma/Core/Widgets/app_button.dart';
 import 'package:khedma/Core/constants/app_emums.dart';
@@ -6,19 +9,21 @@ import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
 import 'package:khedma/Core/routing/app_routs.dart';
-import 'package:khedma/Core/routing/router_notifire.dart';
+import 'package:khedma/Core/routing/router_notifier.dart';
+import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/complete_profile_page.dart';
 import 'package:khedma/features/auth/presentation/screens/forget_password.dart';
+import 'package:khedma/features/auth/presentation/screens/home.dart';
 import 'package:khedma/features/auth/presentation/screens/location_picker.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
 import 'package:khedma/features/auth/presentation/screens/on_boarding.dart';
 import 'package:khedma/features/auth/presentation/screens/register.dart';
 import 'package:khedma/features/auth/presentation/screens/verify_email.dart';
 
-class RoutConfig {
+class RouteConfig {
   final RouterNotifier notifier;
-  RoutConfig({required this.notifier});
+  RouteConfig({required this.notifier});
 
   late final goRouter = GoRouter(
     initialLocation: AppRoutes.onboarding,
@@ -44,15 +49,17 @@ class RoutConfig {
   };
 
   String? _redirect(BuildContext context, GoRouterState state) {
+    log('REDIRECTED CALLED');
     final authState = notifier.authState;
     final currentPath = state.uri.path;
 
     // إذا كانت الحالة غير معروفة (لا تزال تحميل)، لا نعيد توجيه
-    if (authState.authStatus == AuthStatus.unKnown ||
+    if (authState.authStatus == AuthStatus.unknown ||
         authState.onboardingStatus == OnboardingStatus.unKnown) {
       return null;
     }
 
+    log(authState.isFirstTime.toString());
     // إذا كانت أول مرة → نذهب إلى onboarding
     if (authState.isFirstTime) {
       if (currentPath == AppRoutes.onboarding) return null;
@@ -119,7 +126,14 @@ class RoutConfig {
       path: AppRoutes.login,
       name: AppRoutes.login,
       builder: (context, state) {
-        final userType = state.extra as UserType;
+        // ✅ أولاً: لو جاء userType من pushNamed (onboarding القديم) نأخذه
+        // ثانياً: لو جاء من redirect نأخذه من AuthState.selectedUserType
+        // ثالثاً: fallback لـ client لو مفيش في الحالتين
+        final fromExtra = state.extra is UserType
+            ? state.extra as UserType
+            : null;
+        final fromState = context.read<AuthCubit>().state.selectedUserType;
+        final userType = fromExtra ?? fromState ?? UserType.service;
         return Login(userType: userType);
       },
     ),
@@ -127,7 +141,11 @@ class RoutConfig {
       path: AppRoutes.register,
       name: AppRoutes.register,
       builder: (context, state) {
-        final userType = state.extra as UserType;
+        final fromExtra = state.extra is UserType
+            ? state.extra as UserType
+            : null;
+        final fromState = context.read<AuthCubit>().state.selectedUserType;
+        final userType = fromExtra ?? fromState ?? UserType.service;
         return Register(userType: userType);
       },
     ),
@@ -150,6 +168,11 @@ class RoutConfig {
       path: AppRoutes.completeProfile,
       name: AppRoutes.completeProfile,
       builder: (context, state) => CompleteProfilePage(),
+    ),
+    GoRoute(
+      path: AppRoutes.home,
+      name: AppRoutes.home,
+      builder: (context, state) => Home(),
     ),
   ];
 }

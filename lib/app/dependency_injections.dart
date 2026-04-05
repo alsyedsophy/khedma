@@ -6,8 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khedma/Core/network/network_info.dart';
-import 'package:khedma/Core/routing/rout_config.dart';
-import 'package:khedma/Core/routing/router_notifire.dart';
+import 'package:khedma/Core/routing/route_config.dart';
+import 'package:khedma/Core/routing/router_notifier.dart';
 import 'package:khedma/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:khedma/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:khedma/features/auth/data/repositories/auth_repo_impl.dart';
@@ -82,11 +82,11 @@ Future<void> init() async {
   sl.registerLazySingleton(() => SetProfileCompletedUseCase(sl()));
   sl.registerLazySingleton(() => SetUserTypeUseCase(sl()));
   sl.registerLazySingleton(() => UpdateUserUseCase(sl()));
-  sl.registerLazySingleton(() => VerifiyEmailUseCase(sl()));
+  sl.registerLazySingleton(() => VerifyEmailUseCase(sl()));
 
   // Cubit
   //! Auth Cubit
-  sl.registerFactory(
+  sl.registerLazySingleton(
     () => AuthCubit(
       checkEmailVerifiedUseCase: sl(),
       createAcountUseCase: sl(),
@@ -108,9 +108,9 @@ Future<void> init() async {
   );
 
   //! Location Cubit
-  sl.registerFactory(() => LocationPickerCubit(sl()));
+  sl.registerFactory(() => LocationPickerCubit(sl(), sl()));
 
   //? Router
   sl.registerLazySingleton(() => RouterNotifier(sl<AuthCubit>()));
-  sl.registerLazySingleton(() => RoutConfig(notifier: sl()));
+  sl.registerLazySingleton(() => RouteConfig(notifier: sl()));
 }

@@ -71,15 +71,15 @@ class UserEntity extends Equatable {
 
 class LocationEntity extends Equatable {
   final double latitude;
-  final double langitude;
+  final double longitude;
   final String address;
 
   const LocationEntity({
     required this.latitude,
-    required this.langitude,
+    required this.longitude,
     required this.address,
   });
 
   @override
-  List<Object?> get props => [langitude, langitude, address];
+  List<Object?> get props => [longitude, longitude, address];
 }

@@ -32,6 +32,10 @@ abstract class AuthRemoteDataSource {
     LocationModel? location,
     XFile? imageFile,
   });
+
+  Future<void> setLocationSelected();
+  Future<void> setLocationAddress(LocationModel location);
+  Future<void> setProfileCompleted();
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -257,6 +261,51 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       if (updates.isNotEmpty) {
         await _firestore.collection('users').doc(uid).update(updates);
       }
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseErrorHandle.handle(e);
+    } catch (e) {
+      throw UnKnowException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> setLocationAddress(LocationModel location) async {
+    try {
+      final uid = _firebaseAuth.currentUser?.uid;
+      if (uid == null) throw AuthException(message: 'Not authentecated');
+      await _firestore.collection('users').doc(uid).update({
+        'location': location,
+      });
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseErrorHandle.handle(e);
+    } catch (e) {
+      throw UnKnowException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> setLocationSelected() async {
+    try {
+      final uid = _firebaseAuth.currentUser?.uid;
+      if (uid == null) throw AuthException(message: 'Not authentecated');
+      await _firestore.collection('users').doc(uid).update({
+        'isLocationSelected': true,
+      });
+    } on FirebaseAuthException catch (e) {
+      throw FirebaseErrorHandle.handle(e);
+    } catch (e) {
+      throw UnKnowException(message: e.toString());
+    }
+  }
+
+  @override
+  Future<void> setProfileCompleted() async {
+    try {
+      final uid = _firebaseAuth.currentUser?.uid;
+      if (uid == null) throw AuthException(message: 'Not authentecated');
+      await _firestore.collection('users').doc(uid).update({
+        'isProfileCompleted': true,
+      });
     } on FirebaseAuthException catch (e) {
       throw FirebaseErrorHandle.handle(e);
     } catch (e) {

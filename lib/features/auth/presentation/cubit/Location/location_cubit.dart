@@ -3,12 +3,18 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
+import 'package:khedma/features/auth/domain/usecases/auth_use_cases.dart';
+import 'package:khedma/features/auth/domain/usecases/set_location_address_use_case.dart';
 import 'package:khedma/features/auth/presentation/cubit/Location/location_state.dart';
 
 class LocationPickerCubit extends Cubit<LocationPickerState> {
-  final AuthCubit authCubit;
-  LocationPickerCubit(this.authCubit) : super(const LocationPickerState());
+  final SetLocationSelectedUseCase setLocationSelectedUseCase;
+  final SetLocationAddressUseCase setLocationAddressUseCase;
+
+  LocationPickerCubit(
+    this.setLocationSelectedUseCase,
+    this.setLocationAddressUseCase,
+  ) : super(const LocationPickerState());
 
   /// الحصول على الموقع الحالي للمستخدم
   Future<void> getCurrentLocation() async {
@@ -154,7 +160,21 @@ class LocationPickerCubit extends Cubit<LocationPickerState> {
     if (state.selectedLocation != null && state.address != null) {
       emit(state.copyWith(status: LocationPickerStatus.confirming));
       // هنا يمكن حفظ الموقع في Firestore أو تمريره إلى Cubit آخر
-      await authCubit.locationAddress(state.selectedLocation!, state.address!);
+      final result = await setLocationSelectedUseCase();
+      result.fold(
+        (failure) => emit(state.copyWith(status: LocationPickerStatus.error)),
+        (_) async {
+          final setAddress = await setLocationAddressUseCase(
+            state.selectedLocation!,
+            state.address!,
+          );
+          setAddress.fold(
+            (failure) =>
+                emit(state.copyWith(status: LocationPickerStatus.error)),
+            (_) => emit(state.copyWith(status: LocationPickerStatus.confirmed)),
+          );
+        },
+      );
       // بعد نجاح العملية:
       emit(state.copyWith(status: LocationPickerStatus.confirmed));
     }
