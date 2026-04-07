@@ -10,6 +10,7 @@ import 'package:khedma/Core/design_system/tokens/app_typography.dart';
 import 'package:khedma/Core/extentions/app_extentions.dart';
 import 'package:khedma/Core/routing/app_routs.dart';
 import 'package:khedma/Core/routing/router_notifier.dart';
+import 'package:khedma/app/splash_screen.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/complete_profile_page.dart';
@@ -26,7 +27,7 @@ class RouteConfig {
   RouteConfig({required this.notifier});
 
   late final goRouter = GoRouter(
-    initialLocation: AppRoutes.onboarding,
+    initialLocation: AppRoutes.splash,
     refreshListenable: notifier,
     errorBuilder: (context, state) => _ErrorPage(),
     routes: _routes,
@@ -52,22 +53,30 @@ class RouteConfig {
     log('REDIRECTED CALLED');
     final authState = notifier.authState;
     final currentPath = state.uri.path;
-
+    log(authState.toString());
+    log(currentPath.toString());
     // إذا كانت الحالة غير معروفة (لا تزال تحميل)، لا نعيد توجيه
     if (authState.authStatus == AuthStatus.unknown ||
         authState.onboardingStatus == OnboardingStatus.unKnown) {
       return null;
     }
+    log("isFirstTimeDone :  ${authState.isFirstTimeDone}");
 
-    log(authState.isFirstTime.toString());
+    log("isFirstTime :  ${authState.isFirstTime}");
     // إذا كانت أول مرة → نذهب إلى onboarding
-    if (authState.isFirstTime) {
+    if (authState.onboardingStatus == OnboardingStatus.firstTime) {
       if (currentPath == AppRoutes.onboarding) return null;
       return AppRoutes.onboarding;
+    }
+    if (authState.onboardingStatus == OnboardingStatus.done &&
+        !authState.isLoggedIn) {
+      if (_publicRoutes.contains(currentPath)) return null;
+      return AppRoutes.login;
     }
 
     // إذا لم يكن مسجل الدخول → نسمح فقط بالمسارات العامة
     if (!authState.isLoggedIn) {
+      log("isLoggedIn : ${authState.isLoggedIn}");
       if (_publicRoutes.contains(currentPath)) return null;
       return AppRoutes.login;
     }
@@ -117,6 +126,11 @@ class RouteConfig {
   }
 
   List<RouteBase> get _routes => [
+    GoRoute(
+      path: AppRoutes.splash,
+      name: AppRoutes.splash,
+      builder: (context, state) => SplashScreen(),
+    ),
     GoRoute(
       path: AppRoutes.onboarding,
       name: AppRoutes.onboarding,

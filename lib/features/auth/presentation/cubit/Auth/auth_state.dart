@@ -47,8 +47,8 @@ class AuthState extends Equatable {
   }
 
   bool get isFirstTime => onboardingStatus == OnboardingStatus.firstTime;
-  bool get isLoggedIn =>
-      user != null && authStatus != AuthStatus.unauthenticated;
+  bool get isFirstTimeDone => onboardingStatus == OnboardingStatus.done;
+  bool get isLoggedIn => user != null && authStatus != AuthStatus.authenticated;
 
   @override
   List<Object?> get props => [

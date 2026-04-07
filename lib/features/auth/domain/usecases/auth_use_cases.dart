@@ -12,4 +12,5 @@ export 'is_first_time_use_case.dart';
 export 'set_first_time_done_use_case.dart';
 export 'set_user_type_use_case.dart';
 export 'set_location_selected_use_case.dart';
+export 'set_location_address_use_case.dart';
 export 'set_profile_copleted_use_case.dart';

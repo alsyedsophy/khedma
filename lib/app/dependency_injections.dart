@@ -13,7 +13,6 @@ import 'package:khedma/features/auth/data/datasources/auth_remote_data_source.da
 import 'package:khedma/features/auth/data/repositories/auth_repo_impl.dart';
 import 'package:khedma/features/auth/domain/repositories/auth_repo.dart';
 import 'package:khedma/features/auth/domain/usecases/auth_use_cases.dart';
-import 'package:khedma/features/auth/domain/usecases/set_location_address_use_case.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Location/location_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,7 +34,9 @@ Future<void> init() async {
   final facebook = FacebookAuth.instance;
   sl.registerLazySingleton(() => sharedPref);
   sl.registerLazySingleton<FlutterSecureStorage>(
-    () => const FlutterSecureStorage(),
+    () => const FlutterSecureStorage(
+      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    ),
   );
 
   sl.registerLazySingleton<FirebaseAuth>(() => firebaseAuth);

@@ -19,7 +19,7 @@ class VerifyEmail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => VerifyEmailCubit()..startTimer(),
+      create: (_) => VerifyEmailCubit(),
       child: const _VerifyEmailView(),
     );
   }

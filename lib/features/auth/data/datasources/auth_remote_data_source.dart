@@ -135,7 +135,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserModel> loginWithFacebook(UserType userType) async {
     try {
-      final LoginResult result = await _facebookAuth.login();
+      final LoginResult result = await _facebookAuth.login(
+        permissions: ['email', 'public_profile'],
+      );
       if (result.status != LoginStatus.success) {
         throw Exception('فشل تسجيل الدخول');
       }
@@ -146,8 +148,10 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
           .signInWithCredential(credential);
       return await _getOrCreateUser(userCredential.user!, userType);
     } on FirebaseAuthException catch (e) {
+      log('firebase ============ : ${e.message}');
       throw FirebaseErrorHandle.handle(e);
     } catch (e) {
+      log('unknow : $e');
       throw UnKnowException(message: e.toString());
     }
   }

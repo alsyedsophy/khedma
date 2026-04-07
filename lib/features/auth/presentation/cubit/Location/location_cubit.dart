@@ -4,7 +4,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:khedma/features/auth/domain/usecases/auth_use_cases.dart';
-import 'package:khedma/features/auth/domain/usecases/set_location_address_use_case.dart';
 import 'package:khedma/features/auth/presentation/cubit/Location/location_state.dart';
 
 class LocationPickerCubit extends Cubit<LocationPickerState> {

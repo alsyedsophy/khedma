@@ -26,7 +26,9 @@ class UserModel extends UserEntity {
       email: map['email'] ?? '',
       name: map['name'],
       phone: map['phone'],
-      location: LocationModel.fromMap(map['location']),
+      location: map['location'] != null
+          ? LocationModel.fromMap(map['location'])
+          : null,
       profileImageUrl: map['profileImageUrl'],
       isEmailVerified: map['isEmailVerified'] ?? false,
       isLocationSelected: map['isLocationSelected'] ?? false,
@@ -43,7 +45,7 @@ class UserModel extends UserEntity {
       'email': email,
       'name': name,
       'phone': phone,
-      'location': (location as LocationModel).toMap(),
+      'location': location != null ? (location as LocationModel).toMap() : null,
       'profileImageUrl': profileImageUrl,
       'isEmailVerified': isEmailVerified,
       'isLocationSelected': isLocationSelected,
@@ -59,7 +61,7 @@ class UserModel extends UserEntity {
       'email': email,
       'name': name,
       'phone': phone,
-      'location': (location as LocationModel).toMap(),
+      'location': location != null ? (location as LocationModel).toMap() : null,
       'profileImageUrl': profileImageUrl,
       'isEmailVerified': isEmailVerified,
       'isLocationSelected': isLocationSelected,
@@ -75,7 +77,9 @@ class UserModel extends UserEntity {
       name: json['name'],
       phone: json['phone'],
       profileImageUrl: json['profileImageUrl'],
-      location: LocationModel.fromMap(json['location']),
+      location: json['location'] != null
+          ? LocationModel.fromMap(json['location'])
+          : null,
       isEmailVerified: json['isEmailVerified'],
       isLocationSelected: json['isLocationSelected'],
       isProfileCompleted: json['isProfileCompleted'],

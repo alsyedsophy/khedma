@@ -50,7 +50,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBy8IUvysc4ePMXsyLOjWWrLFgFH4RR8fg',
+    apiKey: 'AIzaSyCQWKcU_bSbeHYQT8DWtIVjrzYtYjIxPZI',
     appId: '1:526642857625:android:1f85f2a5f27ffae1689a08',
     messagingSenderId: '526642857625',
     projectId: 'khedma-15ba9',
@@ -63,6 +63,8 @@ class DefaultFirebaseOptions {
     messagingSenderId: '526642857625',
     projectId: 'khedma-15ba9',
     storageBucket: 'khedma-15ba9.firebasestorage.app',
+    iosClientId:
+        '526642857625-a56v047cv4nn27m4h172vqsgq072re2e.apps.googleusercontent.com',
     iosBundleId: 'com.example.khedma',
   );
 }

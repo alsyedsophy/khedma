@@ -72,6 +72,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -82,6 +90,8 @@ class AuthRepositoryImpl implements AuthRepo {
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
     }
   }
 
@@ -100,6 +110,8 @@ class AuthRepositoryImpl implements AuthRepo {
       return Right(isVerified);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
     }
   }
 
@@ -113,6 +125,8 @@ class AuthRepositoryImpl implements AuthRepo {
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
     }
   }
 

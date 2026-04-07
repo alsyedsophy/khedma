@@ -53,138 +53,144 @@ class _LoginState extends State<Login> with AuthEventListenerMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       body: BlocBuilder<AuthCubit, AuthState>(
-        builder: (context, state) => AppLoadingOverlay(
-          isLoading: state.isLoading,
-          child: SafeArea(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppSpacing.h_24.verticalSpace,
-                  LogoAndBack(),
-                  AppSpacing.h_36.verticalSpace,
-                  Text(
-                    'Enter your email and password to login',
-                    style: AppTypography.headlineSmall,
-                  ),
-                  AppSpacing.h_30.verticalSpace,
-                  AppTextFormField(
-                    controller: _emailController,
-                    height: AppSpacing.h_56,
-                    hintText: 'Enter Your Email.',
-                    validator: (value) => Validators.validateEmail(value),
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icon(
-                      Icons.email_rounded,
-                      color: AppColors.grey400,
+        builder: (context, state) {
+          log(state.toString());
+          return AppLoadingOverlay(
+            isLoading: state.isLoading,
+            child: SafeArea(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppSpacing.h_24.verticalSpace,
+                    LogoAndBack(),
+                    AppSpacing.h_36.verticalSpace,
+                    Text(
+                      'Enter your email and password to login',
+                      style: AppTypography.headlineSmall,
                     ),
-                  ),
-                  AppSpacing.h_16.verticalSpace,
-                  AppTextFormField(
-                    controller: _passwordController,
-                    height: AppSpacing.h_56,
-                    hintText: 'Enter Your Password.',
-                    validator: (value) => Validators.validatePassword(value),
-                    isPassword: true,
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icon(
-                      Icons.lock_clock_outlined,
-                      color: AppColors.grey400,
+                    AppSpacing.h_30.verticalSpace,
+                    AppTextFormField(
+                      controller: _emailController,
+                      height: AppSpacing.h_56,
+                      hintText: 'Enter Your Email.',
+                      validator: (value) => Validators.validateEmail(value),
+                      keyboardType: TextInputType.emailAddress,
+                      prefixIcon: Icon(
+                        Icons.email_rounded,
+                        color: AppColors.grey400,
+                      ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () =>
-                          context.pushNamed(AppRoutes.forgotPassword),
+                    AppSpacing.h_16.verticalSpace,
+                    AppTextFormField(
+                      controller: _passwordController,
+                      height: AppSpacing.h_56,
+                      hintText: 'Enter Your Password.',
+                      validator: (value) => Validators.validatePassword(value),
+                      isPassword: true,
+                      keyboardType: TextInputType.emailAddress,
+                      prefixIcon: Icon(
+                        Icons.lock_clock_outlined,
+                        color: AppColors.grey400,
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: TextButton(
+                        onPressed: () =>
+                            context.pushNamed(AppRoutes.forgotPassword),
 
-                      child: Text(
-                        'Forgot Password?',
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.grey600,
+                        child: Text(
+                          'Forgot Password?',
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: AppColors.grey600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  AppSpacing.h_24.verticalSpace,
-                  BlocBuilder<AuthCubit, AuthState>(
-                    builder: (context, state) {
-                      return AppButton(
-                        label: 'SignIn',
-                        onPressed: state.isLoading ? null : _login,
-                      );
-                    },
-                  ),
-                  AppSpacing.h_24.verticalSpace,
-                  Center(
-                    child: GestureDetector(
-                      onTap: () => context.pushNamed(
-                        AppRoutes.register,
-                        extra: widget.userType,
+                    AppSpacing.h_24.verticalSpace,
+                    BlocBuilder<AuthCubit, AuthState>(
+                      builder: (context, state) {
+                        return AppButton(
+                          label: 'SignIn',
+                          onPressed: state.isLoading ? null : _login,
+                        );
+                      },
+                    ),
+                    AppSpacing.h_24.verticalSpace,
+                    Center(
+                      child: GestureDetector(
+                        onTap: () => context.pushNamed(
+                          AppRoutes.register,
+                          extra: widget.userType,
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            text: 'New in Fixit? ',
+                            style: AppTypography.bodyLarge.copyWith(
+                              color: AppColors.grey700,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Sign up now.',
+                                style: AppTypography.bodyLarge.copyWith(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: RichText(
-                        text: TextSpan(
-                          text: 'New in Fixit? ',
+                    ),
+                    AppSpacing.h_24.verticalSpace,
+                    Row(
+                      children: [
+                        Divider().expanded,
+                        AppSpacing.w_8.horizontalSpace,
+                        Text(
+                          'or',
                           style: AppTypography.bodyLarge.copyWith(
                             color: AppColors.grey700,
                           ),
-                          children: [
-                            TextSpan(
-                              text: 'Sign up now.',
-                              style: AppTypography.bodyLarge.copyWith(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ],
                         ),
+                        AppSpacing.w_8.horizontalSpace,
+                        Divider().expanded,
+                      ],
+                    ),
+                    AppSpacing.h_24.verticalSpace,
+                    Center(
+                      child: Text(
+                        'Log in with',
+                        style: AppTypography.bodyLarge,
                       ),
                     ),
-                  ),
-                  AppSpacing.h_24.verticalSpace,
-                  Row(
-                    children: [
-                      Divider().expanded,
-                      AppSpacing.w_8.horizontalSpace,
-                      Text(
-                        'or',
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: AppColors.grey700,
-                        ),
-                      ),
-                      AppSpacing.w_8.horizontalSpace,
-                      Divider().expanded,
-                    ],
-                  ),
-                  AppSpacing.h_24.verticalSpace,
-                  Center(
-                    child: Text('Log in with', style: AppTypography.bodyLarge),
-                  ),
-                  AppSpacing.h_24.verticalSpace,
-                  Row(
-                    children: [
-                      SocialLoginButton(
-                        label: 'Google',
-                        imagePath: 'imagePath',
-                        onTap: () => context.read<AuthCubit>().loginWithGoogle(
-                          widget.userType,
-                        ),
-                      ).expanded,
-                      AppSpacing.w_16.horizontalSpace,
-                      SocialLoginButton(
-                        label: 'Facebook',
-                        imagePath: 'imagePath',
-                        onTap: () => context
-                            .read<AuthCubit>()
-                            .loginWithFacebook(widget.userType),
-                      ).expanded,
-                    ],
-                  ),
-                ],
-              ).paddingHorizontal(AppSpacing.w_24),
+                    AppSpacing.h_24.verticalSpace,
+                    Row(
+                      children: [
+                        SocialLoginButton(
+                          label: 'Google',
+                          imagePath: 'imagePath',
+                          onTap: () => context
+                              .read<AuthCubit>()
+                              .loginWithGoogle(widget.userType),
+                        ).expanded,
+                        AppSpacing.w_16.horizontalSpace,
+                        SocialLoginButton(
+                          label: 'Facebook',
+                          imagePath: 'imagePath',
+                          onTap: () => context
+                              .read<AuthCubit>()
+                              .loginWithFacebook(widget.userType),
+                        ).expanded,
+                      ],
+                    ),
+                  ],
+                ).paddingHorizontal(AppSpacing.w_24),
+              ),
             ),
-          ),
-        ),
+          );
+        },
       ),
     );
   }

@@ -1,0 +1,10 @@
+
+<resources>
+    <string name="app_name">khedma</string>
+
+    <!-- Facebook Config -->
+    <string name="facebook_app_id">947983941184110</string>
+    <string name="fb_login_protocol_scheme">fb947983941184110</string>
+    <string name="facebook_client_token">2f72fbc94194e39be1bf289d46a002f1</string>
+
+</resources>

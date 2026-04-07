@@ -7,7 +7,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/features/auth/domain/entities/user_entity.dart';
 import 'package:khedma/features/auth/domain/usecases/auth_use_cases.dart';
-import 'package:khedma/features/auth/domain/usecases/set_location_address_use_case.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_events.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 
@@ -128,14 +127,16 @@ class AuthCubit extends Cubit<AuthState> {
         _errorEvent(failure.message);
         emit(state.copyWith(isLoading: false));
       },
-      (user) => emit(
-        state.copyWith(
-          isLoading: false,
-          user: user,
-          authStatus: _resolveAuthStatus(user),
-          onboardingStatus: OnboardingStatus.done,
-        ),
-      ),
+      (user) {
+        emit(
+          state.copyWith(
+            isLoading: false,
+            user: user,
+            authStatus: _resolveAuthStatus(user),
+            onboardingStatus: OnboardingStatus.done,
+          ),
+        );
+      },
     );
   }
 
@@ -196,14 +197,17 @@ class AuthCubit extends Cubit<AuthState> {
         _errorEvent(failure.message);
         emit(state.copyWith(isLoading: false));
       },
-      (user) => emit(
-        state.copyWith(
-          isLoading: false,
-          user: user,
-          authStatus: _resolveAuthStatus(user),
-          onboardingStatus: OnboardingStatus.done,
-        ),
-      ),
+      (user) {
+        log(user.toString());
+        emit(
+          state.copyWith(
+            isLoading: false,
+            user: user,
+            authStatus: _resolveAuthStatus(user),
+            onboardingStatus: OnboardingStatus.done,
+          ),
+        );
+      },
     );
   }
 
@@ -291,6 +295,7 @@ class AuthCubit extends Cubit<AuthState> {
   /// إكمال شاشة الترحيب (onboarding) وتعيين نوع المستخدم
   Future<void> completeOnboarding(UserType userType) async {
     emit(state.copyWith(isLoading: true));
+    log("state in cubit : $state");
     // أولاً: تعيين نوع المستخدم
     final result = await setUserTypeUseCase(userType: userType);
     result.fold(
@@ -301,7 +306,7 @@ class AuthCubit extends Cubit<AuthState> {
       (_) async {
         // ثم تعيين أول مرة كمستخدم
         final firstTimeResult = await setFirstTimeDoneUseCase();
-        log(state.isFirstTime.toString());
+        // log(state.isFirstTime.toString());
         firstTimeResult.fold(
           (failure) {
             emit(state.copyWith(isLoading: false));

@@ -14,6 +14,7 @@ class AppSpacing {
   static final double h_56 = 56.h;
   static final double h_58 = 58.h;
   static final double h_84 = 84.h;
+  static final double h_106 = 106.h;
   static final double h_152 = 152.h;
 
   // Width
@@ -22,6 +23,7 @@ class AppSpacing {
   static final double w_24 = 24.w;
   static final double w_28 = 28.w;
   static final double w_64 = 64.w;
+  static final double w_127 = 127.w;
 
   // Size
   static final double s_20 = 20.sp;
