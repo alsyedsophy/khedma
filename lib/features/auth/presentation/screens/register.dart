@@ -53,6 +53,7 @@ class _RegisterState extends State<Register> with AuthEventListenerMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           return AppLoadingOverlay(
@@ -210,7 +211,7 @@ class _RegisterState extends State<Register> with AuthEventListenerMixin {
                           onTap: () => context
                               .read<AuthCubit>()
                               .loginWithFacebook(widget.userType),
-                        ),
+                        ).expanded,
                       ],
                     ),
                   ],

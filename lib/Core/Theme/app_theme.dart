@@ -14,7 +14,7 @@ class AppTheme {
         primary: AppColors.primary,
         secondary: AppColors.secondary,
         error: AppColors.error,
-        background: AppColors.background,
+        background: AppColors.background, // ignore: deprecated_member_use
         surface: AppColors.surface,
       ),
 

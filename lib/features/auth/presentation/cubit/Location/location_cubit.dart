@@ -175,7 +175,7 @@ class LocationPickerCubit extends Cubit<LocationPickerState> {
         },
       );
       // بعد نجاح العملية:
-      emit(state.copyWith(status: LocationPickerStatus.confirmed));
+      // emit(state.copyWith(status: LocationPickerStatus.confirmed));
     }
   }
 

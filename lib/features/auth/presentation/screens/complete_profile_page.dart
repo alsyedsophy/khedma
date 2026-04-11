@@ -62,6 +62,7 @@ class _CompleteProfilePageState extends State<CompleteProfilePage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) => SafeArea(
           child: Form(

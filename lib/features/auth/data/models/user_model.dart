@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/features/auth/domain/entities/user_entity.dart';
 
@@ -71,20 +73,31 @@ class UserModel extends UserEntity {
   }
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
-    return UserModel(
-      id: json['id'],
-      email: json['email'],
-      name: json['name'],
-      phone: json['phone'],
-      profileImageUrl: json['profileImageUrl'],
-      location: json['location'] != null
-          ? LocationModel.fromMap(json['location'])
-          : null,
-      isEmailVerified: json['isEmailVerified'],
-      isLocationSelected: json['isLocationSelected'],
-      isProfileCompleted: json['isProfileCompleted'],
-      userType: json['userType'],
-    );
+    try {
+      log('Parsing UserModel from JSON: $json');
+      final userTypeString = json['userType'] as String? ?? 'service';
+      final userType = UserType.values.firstWhere(
+        (e) => e.toString().split('.').last == userTypeString,
+        orElse: () => UserType.service,
+      );
+      return UserModel(
+        id: json['id'] as String,
+        email: json['email'] as String,
+        name: json['name'] as String?,
+        phone: json['phone'] as String?,
+        location: json['location'] != null
+            ? LocationModel.fromJson(json['location'])
+            : null,
+        profileImageUrl: json['profileImageUrl'] as String?,
+        isEmailVerified: json['isEmailVerified'] as bool? ?? false,
+        isLocationSelected: json['isLocationSelected'] as bool? ?? false,
+        isProfileCompleted: json['isProfileCompleted'] as bool? ?? false,
+        userType: userType,
+      );
+    } catch (e, stack) {
+      log('ERROR in UserModel.fromJson: $e\n$stack');
+      rethrow;
+    }
   }
 
   // تحويل من UserEntity إلى UserModel
@@ -128,6 +141,14 @@ class LocationModel extends LocationEntity {
       latitude: location.latitude,
       longitude: location.longitude,
       address: location.address,
+    );
+  }
+
+  factory LocationModel.fromJson(Map<String, dynamic> json) {
+    return LocationModel(
+      latitude: json['latitude'],
+      longitude: json['longitude'],
+      address: json['address'],
     );
   }
 }

@@ -63,7 +63,7 @@ class AuthCubit extends Cubit<AuthState> {
 
   AuthStatus _resolveAuthStatus(UserEntity? user) {
     if (user == null) return AuthStatus.unauthenticated;
-    if (!user.isEmailVerified) return AuthStatus.emailUnVerified;
+    if (!user.isEmailVerified) return AuthStatus.authenticated;
     if (!user.isLocationSelected) return AuthStatus.locationNotSelected;
     if (!user.isProfileCompleted) return AuthStatus.profileIncomplete;
     return AuthStatus.fullySetup;
@@ -75,7 +75,7 @@ class AuthCubit extends Cubit<AuthState> {
     // التحقق من أول مرة
     final isFirstTimeResult = await isFirstTimeUseCase();
     final isFirst = isFirstTimeResult.fold((_) => true, (val) => val);
-
+    log('is First Time in check : $isFirst');
     if (isFirst) {
       emit(
         state.copyWith(
@@ -89,26 +89,48 @@ class AuthCubit extends Cubit<AuthState> {
 
     // التحقق من وجود مستخدم مخبأ
     final userResult = await getCachedUserUseCase();
-    userResult.fold(
-      (failure) {
-        //  فشل الـ cache لا يستدعي snackbar في الـ startup — نسجل فقط
-        emit(
-          state.copyWith(
-            isLoading: false,
-            onboardingStatus: OnboardingStatus.done,
-            authStatus: AuthStatus.unauthenticated,
-          ),
-        );
-      },
-      (user) => emit(
+    log('User Result in check : $userResult');
+    final user = userResult.fold((failure) => null, (user) => user);
+    log('checkAuthState: user = $user, isFirst = $isFirst');
+
+    if (user == null) {
+      emit(
+        state.copyWith(
+          isLoading: false,
+          onboardingStatus: OnboardingStatus.done,
+          authStatus: AuthStatus.unauthenticated,
+        ),
+      );
+    } else {
+      emit(
         state.copyWith(
           isLoading: false,
           onboardingStatus: OnboardingStatus.done,
           authStatus: _resolveAuthStatus(user),
           user: user,
         ),
-      ),
-    );
+      );
+    }
+    // userResult.fold(
+    //   (failure) {
+    //     //  فشل الـ cache لا يستدعي snackbar في الـ startup — نسجل فقط
+    //     emit(
+    //       state.copyWith(
+    //         isLoading: false,
+    //         onboardingStatus: OnboardingStatus.done,
+    //         authStatus: AuthStatus.unauthenticated,
+    //       ),
+    //     );
+    //   },
+    //   (user) => emit(
+    //     state.copyWith(
+    //       isLoading: false,
+    //       onboardingStatus: OnboardingStatus.done,
+    //       authStatus: _resolveAuthStatus(user),
+    //       user: user,
+    //     ),
+    //   ),
+    // );
   }
 
   Future<void> loginWithEmail(
@@ -156,15 +178,19 @@ class AuthCubit extends Cubit<AuthState> {
         _errorEvent(failure.message);
         emit(state.copyWith(isLoading: false));
       },
-      (user) => emit(
-        state.copyWith(
-          isLoading: false,
-          user: user,
-          authStatus:
-              AuthStatus.emailUnVerified, // بعد التسجيل، البريد غير مفعل
-          onboardingStatus: OnboardingStatus.done,
-        ),
-      ),
+      (user) {
+        // await checkEmailVerified();
+        emit(
+          state.copyWith(
+            isLoading: false,
+            user: user,
+            authStatus: _resolveAuthStatus(
+              user,
+            ), // بعد التسجيل، البريد غير مفعل
+            onboardingStatus: OnboardingStatus.done,
+          ),
+        );
+      },
     );
   }
 
@@ -245,8 +271,9 @@ class AuthCubit extends Cubit<AuthState> {
             state.copyWith(
               isLoading: false,
               user: updatedUser,
-              authStatus: AuthStatus
-                  .locationNotSelected, // بعد التحقق، ننتقل إلى اختيار الموقع
+              authStatus: _resolveAuthStatus(
+                updatedUser,
+              ), // بعد التحقق، ننتقل إلى اختيار الموقع
             ),
           );
         } else {
@@ -334,7 +361,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           user: updatedUser,
-          authStatus: AuthStatus.profileIncomplete,
+          authStatus: _resolveAuthStatus(updatedUser),
         ),
       );
     });
@@ -352,7 +379,9 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           user: updatedUser,
-          authStatus: AuthStatus.profileIncomplete,
+          authStatus: _resolveAuthStatus(
+            updatedUser,
+          ), // ← استخدم _resolveAuthStatus
         ),
       );
     });
@@ -399,7 +428,7 @@ class AuthCubit extends Cubit<AuthState> {
           state.copyWith(
             isLoading: false,
             user: updatedUser,
-            authStatus: AuthStatus.fullySetup,
+            authStatus: _resolveAuthStatus(updatedUser),
           ),
         );
       },

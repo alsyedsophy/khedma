@@ -1,6 +1,8 @@
 import 'dart:convert';
+import 'dart:developer';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+// import 'package:khedma/Core/constants/app_emums.dart';
 import 'package:khedma/Core/errors/extentions.dart';
 import 'package:khedma/features/auth/data/models/user_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -12,6 +14,7 @@ abstract class AuthLocalDataSource {
   Future<void> clearUser(); // مسح بيانات المستخدم
   Future<bool> isFirstTime(); // التحقق من أول مرة
   Future<void> setFirstTimeDone(); // تعيين أول مرة كمستخدم
+  // Future<void> setUserType(UserType userType);
   // Future<void> setLocationSelecte();
   // Future<void> setProfileCompleted();
 }
@@ -22,6 +25,7 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   static const _userKey = 'CACHED_USER';
   static const _firstTimeKey = 'IS_FIRST_TIME';
+  // static const _userType = 'USER_TYPE';
 
   AuthLocalDataSourceImpl({
     required this.secureStorage,
@@ -31,22 +35,30 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   @override
   Future<UserModel?> getCachedUser() async {
     try {
-      final jsonString = await secureStorage.read(key: _userKey);
+      final jsonString = sharedPreferences.getString(_userKey);
+      log('getCachedUser: jsonString = $jsonString');
       if (jsonString == null) return null;
-      return UserModel.fromJson(json.decode(jsonString));
+      try {
+        return UserModel.fromJson(json.decode(jsonString));
+      } catch (e) {
+        await sharedPreferences.remove(_userKey);
+        return null;
+      }
     } catch (_) {
-      throw const CacheException('Failed to get cached user');
+      return null;
     }
   }
 
   @override
   Future<void> cacheUser(UserModel user) async {
     try {
-      await secureStorage.write(
-        key: _userKey,
-        value: json.encode(user.toJson()), // نحتاج إضافة toJson
-      );
-    } catch (_) {
+      log('cacheUser called with user: ${user.id}');
+      final jsonString = json.encode(user.toJson());
+      log('JSON to store: $jsonString');
+      await sharedPreferences.setString(_userKey, jsonString);
+      log('Cached user in local successfully');
+    } catch (e, stack) {
+      log('Error caching user: $e\n$stack');
       throw const CacheException('Failed to cache user');
     }
   }
@@ -65,6 +77,11 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
   Future<void> setFirstTimeDone() async {
     await sharedPreferences.setBool(_firstTimeKey, false);
   }
+
+  // @override
+  // Future<void> setUserType(UserType userType) async {
+  //   await sharedPreferences.setString(_userType, userType.toString());
+  // }
 
   // @override
   // Future<void> setLocationSelecte() async{

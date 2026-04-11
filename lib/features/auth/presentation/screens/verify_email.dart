@@ -8,7 +8,6 @@ import 'package:khedma/Core/extentions/num_extentions.dart';
 import 'package:khedma/Core/extentions/widget_extentions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
-import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/cubit/Verify%20Email/verify_email_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Verify%20Email/verify_email_state.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
@@ -19,7 +18,7 @@ class VerifyEmail extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => VerifyEmailCubit(),
+      create: (_) => VerifyEmailCubit()..startTimer(),
       child: const _VerifyEmailView(),
     );
   }

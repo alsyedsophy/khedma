@@ -36,7 +36,6 @@ class RouteConfig {
 
   // المسارات العامة (لا تحتاج تسجيل دخول)
   static const _publicRoutes = {
-    AppRoutes.onboarding,
     AppRoutes.login,
     AppRoutes.register,
     AppRoutes.forgotPassword,
@@ -50,7 +49,7 @@ class RouteConfig {
   };
 
   String? _redirect(BuildContext context, GoRouterState state) {
-    log('REDIRECTED CALLED');
+    // log('REDIRECTED CALLED');
     final authState = notifier.authState;
     final currentPath = state.uri.path;
     log(authState.toString());
@@ -60,13 +59,17 @@ class RouteConfig {
         authState.onboardingStatus == OnboardingStatus.unKnown) {
       return null;
     }
-    log("isFirstTimeDone :  ${authState.isFirstTimeDone}");
+    // log("isFirstTimeDone :  ${authState.isFirstTimeDone}");
 
-    log("isFirstTime :  ${authState.isFirstTime}");
+    // log("isFirstTime :  ${authState.isFirstTime}");
     // إذا كانت أول مرة → نذهب إلى onboarding
     if (authState.onboardingStatus == OnboardingStatus.firstTime) {
       if (currentPath == AppRoutes.onboarding) return null;
       return AppRoutes.onboarding;
+    }
+    // // بعد إتمام onboarding → لا يجوز البقاء في /onboarding
+    if (currentPath == AppRoutes.onboarding) {
+      return AppRoutes.login; // ← أضف هذا
     }
     if (authState.onboardingStatus == OnboardingStatus.done &&
         !authState.isLoggedIn) {
@@ -76,7 +79,7 @@ class RouteConfig {
 
     // إذا لم يكن مسجل الدخول → نسمح فقط بالمسارات العامة
     if (!authState.isLoggedIn) {
-      log("isLoggedIn : ${authState.isLoggedIn}");
+      // log("isLoggedIn : ${authState.isLoggedIn}");
       if (_publicRoutes.contains(currentPath)) return null;
       return AppRoutes.login;
     }
@@ -88,7 +91,7 @@ class RouteConfig {
 
     // فرض التدفق الإلزامي للإعداد
     switch (authState.authStatus) {
-      case AuthStatus.emailUnVerified:
+      case AuthStatus.authenticated:
         if (currentPath == AppRoutes.verifyEmail) return null;
         return AppRoutes.verifyEmail;
 
@@ -102,7 +105,12 @@ class RouteConfig {
 
       case AuthStatus.fullySetup:
         // لا نسمح بالعودة إلى مسارات الإعداد
-        if (_setupRoutes.contains(currentPath)) return AppRoutes.home;
+        if (_setupRoutes.contains(currentPath)) {
+          final userType = context.read<AuthCubit>().state.user?.userType;
+          return userType == UserType.provider
+              ? AppRoutes.providerHome
+              : AppRoutes.serviceHome;
+        }
         return null;
 
       default:
@@ -112,6 +120,7 @@ class RouteConfig {
 
   String? _routeForStatus(AuthStatus status) {
     switch (status) {
+      case AuthStatus.authenticated:
       case AuthStatus.emailUnVerified:
         return AppRoutes.verifyEmail;
       case AuthStatus.locationNotSelected:
@@ -126,6 +135,7 @@ class RouteConfig {
   }
 
   List<RouteBase> get _routes => [
+    //? Authentication
     GoRoute(
       path: AppRoutes.splash,
       name: AppRoutes.splash,
@@ -188,6 +198,8 @@ class RouteConfig {
       name: AppRoutes.home,
       builder: (context, state) => Home(),
     ),
+
+    //? HomeService
   ];
 }
 
@@ -203,7 +215,10 @@ class _ErrorPage extends StatelessWidget {
             children: [
               Text('الصفحه غير موجوده', style: AppTypography.bodyLarge),
               AppSpacing.h_30.verticalSpace,
-              AppButton(label: 'الذهاب الى الصفحه الرئيسيه'),
+              AppButton(
+                label: 'الذهاب الى الصفحه الرئيسيه',
+                onPressed: () => context.goNamed(AppRoutes.login),
+              ),
             ],
           ),
         ),

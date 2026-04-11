@@ -53,7 +53,7 @@ class _LocationPickerViewState extends State<LocationPickerView> {
             // إبلاغ AuthCubit بأن الموقع تم اختياره
             context.read<AuthCubit>().locationSelected();
             // يمكن إغلاق الصفحة أو الانتقال تلقائياً
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
           }
           if (state.status == LocationPickerStatus.error &&
               state.errorMessage != null) {

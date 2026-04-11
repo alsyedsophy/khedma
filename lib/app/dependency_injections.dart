@@ -35,7 +35,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => sharedPref);
   sl.registerLazySingleton<FlutterSecureStorage>(
     () => const FlutterSecureStorage(
-      aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      aOptions: AndroidOptions(encryptedSharedPreferences: false),
     ),
   );
 

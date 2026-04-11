@@ -8,6 +8,7 @@ enum AuthStatus {
   authenticated,
   emailUnVerified,
   locationNotSelected,
+  locationSelected,
   profileIncomplete,
   fullySetup,
 }
@@ -48,7 +49,8 @@ class AuthState extends Equatable {
 
   bool get isFirstTime => onboardingStatus == OnboardingStatus.firstTime;
   bool get isFirstTimeDone => onboardingStatus == OnboardingStatus.done;
-  bool get isLoggedIn => user != null && authStatus != AuthStatus.authenticated;
+  bool get isLoggedIn =>
+      user != null && authStatus != AuthStatus.unauthenticated;
 
   @override
   List<Object?> get props => [

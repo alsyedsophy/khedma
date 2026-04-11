@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:khedma/Core/constants/app_emums.dart';
@@ -67,6 +69,7 @@ class AuthRepositoryImpl implements AuthRepo {
     try {
       final user = await action();
       await localDataSource.cacheUser(user);
+      log("user in cached in auth repo impl is : $user");
       return Right(user);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
@@ -92,6 +95,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -101,7 +112,9 @@ class AuthRepositoryImpl implements AuthRepo {
       final isVerified = await remoteDataSource.checkEmailVerified();
       if (isVerified) {
         // تحديث حالة التحقق في التخزين المحلي
+        log('is Verified : $isVerified');
         final cachedUser = await localDataSource.getCachedUser();
+        log('cached User : $cachedUser');
         if (cachedUser != null) {
           final updatedUser = cachedUser.copyWith(isEmailVerified: true);
           await localDataSource.cacheUser(UserModel.fromEntity(updatedUser));
@@ -112,6 +125,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -127,6 +148,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -145,12 +174,12 @@ class AuthRepositoryImpl implements AuthRepo {
 
   @override
   Future<Either<Failure, UserEntity?>> getCachedUser() async {
-    try {
-      final user = await localDataSource.getCachedUser();
-      return Right(user);
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    }
+    // try {
+    final user = await localDataSource.getCachedUser();
+    return Right(user);
+    // } on CacheException catch (e) {
+    //   return Left(CacheFailure(e.message));
+    // }
   }
 
   @override
@@ -158,8 +187,18 @@ class AuthRepositoryImpl implements AuthRepo {
     try {
       final result = await localDataSource.isFirstTime();
       return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -168,8 +207,18 @@ class AuthRepositoryImpl implements AuthRepo {
     try {
       await localDataSource.setFirstTimeDone();
       return const Right(null);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -185,6 +234,16 @@ class AuthRepositoryImpl implements AuthRepo {
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -206,6 +265,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -232,6 +299,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -253,6 +328,14 @@ class AuthRepositoryImpl implements AuthRepo {
       return Left(ServerFailure(e.message));
     } on CacheException catch (e) {
       return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 
@@ -320,6 +403,16 @@ class AuthRepositoryImpl implements AuthRepo {
       return const Right(null);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
+    } on CacheException catch (e) {
+      return Left(CacheFailure(e.message));
+    } on AuthException catch (e) {
+      return Left(AuthFailure(e.message));
+    } on ValidationException catch (e) {
+      return Left(ValidationFailure(e.message));
+    } on UnKnowException catch (e) {
+      return Left(UnKnowFailure(e.message));
+    } catch (e) {
+      return Left(UnKnowFailure(e.toString()));
     }
   }
 }

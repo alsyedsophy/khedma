@@ -52,6 +52,7 @@ class _LoginState extends State<Login> with AuthEventListenerMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: BlocBuilder<AuthCubit, AuthState>(
         builder: (context, state) {
           log(state.toString());
@@ -247,12 +248,11 @@ class SocialLoginButton extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Icon: use Image.asset once you add assets
             Image.asset(
               imagePath,
               width: 22,
               height: 22,
-              errorBuilder: (_, __, ___) => const Icon(Icons.public, size: 22),
+              errorBuilder: (_, _, _) => const Icon(Icons.public, size: 22),
             ),
             const SizedBox(width: 8),
             Text(label, style: AppTypography.headlineSmall),

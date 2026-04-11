@@ -8,7 +8,7 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String verifyEmail = '/verify-email';
   static const String mapPicker = '/map-picker';
-  static const String completeProfile = '/coplete-profile';
+  static const String completeProfile = '/complete-profile';
 
   static const String home = '/home';
 
