@@ -11,6 +11,13 @@ import 'package:khedma/Core/extentions/app_extentions.dart';
 import 'package:khedma/Core/routing/app_routs.dart';
 import 'package:khedma/Core/routing/router_notifier.dart';
 import 'package:khedma/app/splash_screen.dart';
+import 'package:khedma/features/Notification/presentation/screens/provider_notification.dart';
+import 'package:khedma/features/Notification/presentation/screens/service_notification.dart';
+import 'package:khedma/features/Profile/Presentation/screens/profile_screen.dart';
+import 'package:khedma/features/Provider/presentation/screens/provider_home.dart';
+import 'package:khedma/features/Provider/presentation/screens/provider_shell.dart';
+import 'package:khedma/features/Service/presentation/screens/service_home.dart';
+import 'package:khedma/features/Service/presentation/screens/service_shell.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/complete_profile_page.dart';
@@ -21,6 +28,7 @@ import 'package:khedma/features/auth/presentation/screens/login.dart';
 import 'package:khedma/features/auth/presentation/screens/on_boarding.dart';
 import 'package:khedma/features/auth/presentation/screens/register.dart';
 import 'package:khedma/features/auth/presentation/screens/verify_email.dart';
+import 'package:khedma/features/chat/presentation/screens/chat_screen.dart';
 
 class RouteConfig {
   final RouterNotifier notifier;
@@ -86,7 +94,7 @@ class RouteConfig {
 
     // إذا كان مسجل الدخول ولكن في مسار عام → نوجهه حسب حالته
     if (_publicRoutes.contains(currentPath)) {
-      return _routeForStatus(authState.authStatus);
+      return _routeForStatus(authState.authStatus, context);
     }
 
     // فرض التدفق الإلزامي للإعداد
@@ -105,20 +113,20 @@ class RouteConfig {
 
       case AuthStatus.fullySetup:
         // لا نسمح بالعودة إلى مسارات الإعداد
-        if (_setupRoutes.contains(currentPath)) {
-          final userType = context.read<AuthCubit>().state.user?.userType;
-          return userType == UserType.provider
-              ? AppRoutes.providerHome
-              : AppRoutes.serviceHome;
-        }
-        return null;
+        log('============================================');
+
+        final userType = context.read<AuthCubit>().state.user?.userType;
+        log('============================ $userType');
+        return userType == UserType.provider
+            ? AppRoutes.providerHome
+            : AppRoutes.serviceHome;
 
       default:
         return null;
     }
   }
 
-  String? _routeForStatus(AuthStatus status) {
+  String? _routeForStatus(AuthStatus status, BuildContext context) {
     switch (status) {
       case AuthStatus.authenticated:
       case AuthStatus.emailUnVerified:
@@ -128,7 +136,11 @@ class RouteConfig {
       case AuthStatus.profileIncomplete:
         return AppRoutes.completeProfile;
       case AuthStatus.fullySetup:
-        return AppRoutes.home;
+        final userType = context.read<AuthCubit>().state.user?.userType;
+        // إذا لم يحدد نوع المستخدم بعد، نعتبر service كافتراضي
+        return userType == UserType.provider
+            ? AppRoutes.providerHome
+            : AppRoutes.serviceHome;
       default:
         return null;
     }
@@ -199,8 +211,113 @@ class RouteConfig {
       builder: (context, state) => Home(),
     ),
 
-    //? HomeService
+    //? Service Shell Route
+    _serviceShellRoute(),
+
+    //? Provider Shell Route
+    _providerShellRoute(),
   ];
+
+  //? Provider Shell Route
+
+  StatefulShellRoute _providerShellRoute() {
+    return StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          ProviderShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.providerHome,
+              name: AppRoutes.providerHome,
+              builder: (context, state) => ProviderHome(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.providerNotifications,
+              name: AppRoutes.providerNotifications,
+              builder: (context, state) => ProviderNotification(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.providerChat,
+              name: AppRoutes.providerChat,
+              builder: (context, state) => ChatScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.providerProfile,
+              name: AppRoutes.providerProfile,
+              builder: (context, state) => ProfileScreen(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  //? Service Shell Route
+  StatefulShellRoute _serviceShellRoute() {
+    return StatefulShellRoute.indexedStack(
+      builder: (context, state, navigationShell) =>
+          ServiceShell(navigationShell: navigationShell),
+      branches: [
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.serviceHome,
+              name: AppRoutes.serviceHome,
+              builder: (context, state) => ServiceHome(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.serviceNotifications,
+              name: AppRoutes.serviceNotifications,
+              builder: (context, state) => ServiceNotification(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.serviceChat,
+              name: AppRoutes.serviceChat,
+              builder: (context, state) => ChatScreen(),
+            ),
+          ],
+        ),
+        StatefulShellBranch(
+          navigatorKey: GlobalKey<NavigatorState>(),
+          routes: [
+            GoRoute(
+              path: AppRoutes.serviceProfile,
+              name: AppRoutes.serviceProfile,
+              builder: (context, state) => ProfileScreen(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 }
 
 class _ErrorPage extends StatelessWidget {

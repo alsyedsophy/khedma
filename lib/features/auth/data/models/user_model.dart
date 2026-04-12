@@ -78,7 +78,7 @@ class UserModel extends UserEntity {
       final userTypeString = json['userType'] as String? ?? 'service';
       final userType = UserType.values.firstWhere(
         (e) => e.toString().split('.').last == userTypeString,
-        orElse: () => UserType.service,
+        orElse: () => UserType.provider,
       );
       return UserModel(
         id: json['id'] as String,
