@@ -14,7 +14,10 @@ class AppRoutes {
 
   // Service Routes
 
+  static const String serviceShell = '/service-shell';
   static const String serviceHome = '/service/home';
+  static const String serviceNotifications = '/service/notification';
+  static const String serviceChat = '/service/chat';
   static const String serviceProfile = '/service/profile';
   static const String serviceSubscription = '/service/subscription';
   static const String postService = '/service/post';
@@ -22,13 +25,12 @@ class AppRoutes {
   static const String browseProviders = '/service/browse-providers';
 
   // Provider Routes
+  static const String providerShell = '/provider-shell';
   static const String providerHome = '/provider/home';
+  static const String providerNotifications = '/provider/notification';
+  static const String providerChat = '/provider/chat';
   static const String providerProfile = '/provider/profile';
   static const String providerSubscription = '/provider/subscription';
   static const String browseServices = '/provider/browse-services';
   static const String applyService = '/provider/apply';
-
-  // Shared
-  static const String chat = '/chat';
-  static const String notifications = '/notifications';
 }
