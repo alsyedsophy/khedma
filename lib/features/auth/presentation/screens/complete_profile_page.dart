@@ -6,12 +6,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:khedma/core/Theme/app_colors.dart';
 import 'package:khedma/core/Utils/validators.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/core/extentions/app_extentions.dart';
+import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
-import 'package:khedma/features/auth/presentation/widgets/app_text_form_field.dart';
+import 'package:khedma/core/Widgets/app_text_form_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
 
 /// صفحة إكمال الملف الشخصي (الاسم، الهاتف، الصورة)
 class CompleteProfilePage extends StatefulWidget {

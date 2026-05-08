@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(Get-ChildItem -Path \"D:\\\\for jop\\\\khedma\\\\lib\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)"
+    ]
+  }
+}

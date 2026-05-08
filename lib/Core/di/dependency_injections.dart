@@ -6,8 +6,11 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:khedma/core/network/network_info.dart';
-import 'package:khedma/core/routing/route_config.dart';
-import 'package:khedma/core/routing/router_notifier.dart';
+import 'package:khedma/app/routing/route_config.dart';
+import 'package:khedma/app/routing/router_notifier.dart';
+import 'package:khedma/features/Services/data/datasources/service_remote_data_surce.dart';
+import 'package:khedma/features/Services/data/repositories/services_repo_impl.dart';
+import 'package:khedma/features/Services/domain/repositories/services_repo.dart';
 import 'package:khedma/features/Services/domain/usecases/services_usecases.dart';
 import 'package:khedma/features/Services/presentation/cubits/Listings/service_listing_cubit.dart';
 import 'package:khedma/features/Services/presentation/cubits/Offers/service_offer_cubit.dart';
@@ -56,8 +59,9 @@ Future<void> init() async {
   sl.registerLazySingleton<FirebaseFirestore>(() => firestore);
   sl.registerLazySingleton<FacebookAuth>(() => facebook);
 
-  //? Auth Feature
+  //! ===============================================
 
+  //? Auth Feature
   // data
   sl.registerLazySingleton<AuthLocalDataSource>(
     () => AuthLocalDataSourceImpl(secureStorage: sl(), sharedPreferences: sl()),
@@ -124,6 +128,8 @@ Future<void> init() async {
   //! Location Cubit
   sl.registerFactory(() => LocationPickerCubit(sl(), sl()));
 
+  //! ==============================================
+
   //? CAtegories Feature
 
   // Data
@@ -142,16 +148,17 @@ Future<void> init() async {
   // Bloc
   sl.registerLazySingleton(() => CategoriesBloc(sl()));
 
+  //! ======================================================
   //? ================ Services Feature ==================
 
   // Data
-  sl.registerLazySingleton<CategoriesRemoteDataSource>(
-    () => CategoriesRemoteDataSourceImpl(firestore: sl()),
+  sl.registerLazySingleton<ServiceRemoteDataSource>(
+    () => ServiceRemoteDataSourceImpl(firestore: sl(), auth: sl()),
   );
 
   // Repository
-  sl.registerLazySingleton<CategoriesRepo>(
-    () => CategoriesRepoImpl(remoteDataSource: sl(), networkInfo: sl()),
+  sl.registerLazySingleton<ServicesRepo>(
+    () => ServiceRepoImpl(remoteDataSource: sl(), networkInfo: sl()),
   );
 
   // Use Cases

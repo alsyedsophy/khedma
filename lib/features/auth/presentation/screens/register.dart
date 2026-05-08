@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:khedma/core/Theme/app_colors.dart';
-import 'package:khedma/core/Utils/validators.dart';
 import 'package:khedma/core/Widgets/app_button.dart';
 import 'package:khedma/core/Widgets/app_loading.dart';
 import 'package:khedma/core/constants/app_emums.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/core/design_system/tokens/app_typography.dart';
-import 'package:khedma/core/extentions/app_extentions.dart';
+import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
-import 'package:khedma/features/auth/presentation/screens/login.dart';
-import 'package:khedma/features/auth/presentation/widgets/app_text_form_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/ask_have_account.dart';
+import 'package:khedma/features/auth/presentation/widgets/check_agree_terms.dart';
+import 'package:khedma/features/auth/presentation/widgets/email_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
+import 'package:khedma/features/auth/presentation/widgets/name_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/or_divider.dart';
+import 'package:khedma/features/auth/presentation/widgets/password_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/social_login_row.dart';
 
 class Register extends StatefulWidget {
   const Register({super.key, required this.userType});
@@ -72,85 +75,16 @@ class _RegisterState extends State<Register> with AuthEventListenerMixin {
                       style: AppTypography.headlineSmall,
                     ),
                     AppSpacing.h_30.verticalSpace,
-                    AppTextFormField(
-                      controller: _nameController,
-                      height: AppSpacing.h_56,
-                      hintText: 'Full name',
-                      keyboardType: TextInputType.name,
-                      prefixIcon: Icon(
-                        Icons.person_outline,
-                        color: AppColors.grey400,
-                      ),
-                      validator: (value) => Validators.validateName(value),
-                    ),
+                    NameField(controller: _nameController),
                     AppSpacing.h_16.verticalSpace,
-                    AppTextFormField(
-                      controller: _emailController,
-                      height: AppSpacing.h_56,
-                      hintText: 'Enter your email',
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icon(
-                        Icons.email_outlined,
-                        color: AppColors.grey400,
-                      ),
-                      validator: (value) => Validators.validateEmail(value),
-                    ),
+                    EmailField(controller: _emailController),
                     AppSpacing.h_16.verticalSpace,
-                    AppTextFormField(
-                      controller: _passwordController,
-                      height: AppSpacing.h_56,
-                      hintText: 'Enter Password',
-                      keyboardType: TextInputType.visiblePassword,
-                      isPassword: true,
-                      prefixIcon: Icon(
-                        Icons.lock_clock_outlined,
-                        color: AppColors.grey400,
-                      ),
-                      validator: (value) => Validators.validatePassword(value),
-                    ),
+                    PasswordField(controller: _passwordController),
                     AppSpacing.h_16.verticalSpace,
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _agreeToTerms,
-                          onChanged: (value) => setState(() {
-                            _agreeToTerms = value ?? false;
-                          }),
-                          checkColor: AppColors.primary,
-                          activeColor: AppColors.primaryLight,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: AppSpacing.r_2.borderRaduis,
-                          ),
-                          side: BorderSide(
-                            color: AppColors.primary,
-                            width: 1.5,
-                          ),
-                        ),
-                        RichText(
-                          text: TextSpan(
-                            text: 'I agree with fixit\'s ',
-                            style: AppTypography.bodyMedium,
-                            children: [
-                              TextSpan(
-                                text: 'Term ',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.info,
-                                ),
-                              ),
-                              TextSpan(
-                                text: '& ',
-                                style: AppTypography.bodyMedium,
-                              ),
-                              TextSpan(
-                                text: 'Conditions',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.info,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ).flexible,
-                      ],
+                    CheckAgreeTerms(
+                      agreeToTerms: _agreeToTerms,
+                      onChanged: (value) =>
+                          setState(() => _agreeToTerms = value ?? false),
                     ),
                     AppSpacing.h_24.verticalSpace,
                     AppButton(
@@ -158,35 +92,9 @@ class _RegisterState extends State<Register> with AuthEventListenerMixin {
                       onPressed: _agreeToTerms ? () => _register() : null,
                     ),
                     AppSpacing.h_30.verticalSpace,
-                    Center(
-                      child: GestureDetector(
-                        onTap: () => context.pop(),
-                        child: RichText(
-                          text: TextSpan(
-                            text: 'Already have an acount? ',
-                            style: AppTypography.bodyMedium,
-                            children: [
-                              TextSpan(
-                                text: 'Login now',
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: AppColors.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    AskHaveAccount(),
                     AppSpacing.h_24.verticalSpace,
-                    Row(
-                      children: [
-                        Divider().flexible,
-                        AppSpacing.w_8.horizontalSpace,
-                        Text(' Or ', style: AppTypography.bodyMedium),
-                        AppSpacing.w_8.horizontalSpace,
-                        Divider().flexible,
-                      ],
-                    ),
+                    OrDivider(),
                     AppSpacing.h_12.verticalSpace,
                     Center(
                       child: Text(
@@ -195,25 +103,7 @@ class _RegisterState extends State<Register> with AuthEventListenerMixin {
                       ),
                     ),
                     AppSpacing.h_12.verticalSpace,
-                    Row(
-                      children: [
-                        SocialLoginButton(
-                          label: 'Google',
-                          imagePath: 'imagePath',
-                          onTap: () => context
-                              .read<AuthCubit>()
-                              .loginWithGoogle(widget.userType),
-                        ).expanded,
-                        AppSpacing.w_16.horizontalSpace,
-                        SocialLoginButton(
-                          label: 'Facebook',
-                          imagePath: 'imagePath',
-                          onTap: () => context
-                              .read<AuthCubit>()
-                              .loginWithFacebook(widget.userType),
-                        ).expanded,
-                      ],
-                    ),
+                    SocialLoginRow(userType: widget.userType),
                   ],
                 ).paddingHorizontal(AppSpacing.w_24),
               ),

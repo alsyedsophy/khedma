@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:khedma/core/routing/route_config.dart';
-import 'package:khedma/app/dependency_injections.dart';
+import 'package:khedma/app/routing/route_config.dart';
+import 'package:khedma/core/di/dependency_injections.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 
 class MyApp extends StatelessWidget {
