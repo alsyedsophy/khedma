@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/Core/extentions/app_extentions.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/extentions/app_extentions.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});

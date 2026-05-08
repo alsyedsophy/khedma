@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:khedma/Core/Theme/app_colors.dart';
+import 'package:khedma/core/Theme/app_colors.dart';
 
 class ProviderShell extends StatelessWidget {
   const ProviderShell({super.key, required this.navigationShell});

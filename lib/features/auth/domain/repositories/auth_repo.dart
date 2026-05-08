@@ -1,7 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:khedma/Core/constants/app_emums.dart';
-import 'package:khedma/Core/errors/failures.dart';
+import 'package:khedma/core/constants/app_emums.dart';
+import 'package:khedma/core/errors/failures.dart';
 import 'package:khedma/features/auth/domain/entities/user_entity.dart';
 
 // واجهة المستودع (Repository) للمصادقة
@@ -37,22 +37,17 @@ abstract class AuthRepo {
     XFile? image,
   });
 
-  // الحصول على المستخدم المخزن محلياً
   Future<Either<Failure, UserEntity?>> getCachedUser();
-  // التحقق مما إذا كانت هذه أول مرة للمستخدم
+
   Future<Either<Failure, bool>> isFirstTime();
 
-  // تعيين أن المستخدم تجاوز شاشة الترحيب
   Future<Either<Failure, void>> setFirstTimeDone();
 
-  // تعيين نوع المستخدم (service أو provider)
   Future<Either<Failure, void>> setUserType(UserType userType);
 
-  // تعيين أن المستخدم اختار موقعه
   Future<Either<Failure, void>> setLocationSelected();
 
   Future<Either<Failure, void>> setLocationAdress(LocationEntity location);
 
-  // تعيين أن المستخدم أكمل ملفه الشخصي
   Future<Either<Failure, void>> setProfileCompleted();
 }

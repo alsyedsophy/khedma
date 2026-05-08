@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:khedma/Core/Theme/app_colors.dart';
-import 'package:khedma/Core/constants/app_assets.dart';
-import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/Theme/app_colors.dart';
+import 'package:khedma/core/constants/app_assets.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

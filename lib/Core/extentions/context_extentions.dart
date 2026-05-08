@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:khedma/Core/design_system/tokens/app_color.dart';
-import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/Core/extentions/num_extentions.dart';
-import 'package:khedma/Core/extentions/widget_extentions.dart';
+import 'package:khedma/core/design_system/tokens/app_color.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/extentions/num_extentions.dart';
+import 'package:khedma/core/extentions/widget_extentions.dart';
 
 extension ContextExtensions on BuildContext {
   // MediaQuery

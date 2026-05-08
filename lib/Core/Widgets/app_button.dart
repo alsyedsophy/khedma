@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:khedma/Core/design_system/tokens/app_color.dart';
-import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/Core/design_system/tokens/app_typography.dart';
-import 'package:khedma/Core/extentions/app_extentions.dart';
+import 'package:khedma/core/design_system/tokens/app_color.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/design_system/tokens/app_typography.dart';
+import 'package:khedma/core/extentions/app_extentions.dart';
 
 enum ButtonType { primary, secondry, text, outlined }
 

@@ -163,6 +163,7 @@ class LocationPickerCubit extends Cubit<LocationPickerState> {
       result.fold(
         (failure) => emit(state.copyWith(status: LocationPickerStatus.error)),
         (_) async {
+          print('==================== ${state.address}=============');
           final setAddress = await setLocationAddressUseCase(
             state.selectedLocation!,
             state.address!,
