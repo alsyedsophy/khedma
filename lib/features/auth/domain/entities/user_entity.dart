@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:khedma/Core/constants/app_emums.dart';
+import 'package:khedma/core/constants/app_emums.dart';
 
 // كيان المستخدم (يمثل البيانات الأساسية للمستخدم في طبقة domain)
 class UserEntity extends Equatable {

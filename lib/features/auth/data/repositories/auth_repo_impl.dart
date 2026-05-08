@@ -2,10 +2,10 @@ import 'dart:developer';
 
 import 'package:dartz/dartz.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:khedma/Core/constants/app_emums.dart';
-import 'package:khedma/Core/errors/extentions.dart';
-import 'package:khedma/Core/errors/failures.dart';
-import 'package:khedma/Core/network/network_info.dart';
+import 'package:khedma/core/constants/app_emums.dart';
+import 'package:khedma/core/errors/extentions.dart';
+import 'package:khedma/core/errors/failures.dart';
+import 'package:khedma/core/network/network_info.dart';
 import 'package:khedma/features/auth/data/datasources/auth_local_data_source.dart';
 import 'package:khedma/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:khedma/features/auth/data/models/user_model.dart';

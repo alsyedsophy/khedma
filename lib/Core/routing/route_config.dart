@@ -3,21 +3,21 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:khedma/Core/Widgets/app_button.dart';
-import 'package:khedma/Core/constants/app_emums.dart';
-import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/Core/design_system/tokens/app_typography.dart';
-import 'package:khedma/Core/extentions/app_extentions.dart';
-import 'package:khedma/Core/routing/app_routs.dart';
-import 'package:khedma/Core/routing/router_notifier.dart';
+import 'package:khedma/core/Widgets/app_button.dart';
+import 'package:khedma/core/constants/app_emums.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/design_system/tokens/app_typography.dart';
+import 'package:khedma/core/extentions/app_extentions.dart';
+import 'package:khedma/core/routing/app_routs.dart';
+import 'package:khedma/core/routing/router_notifier.dart';
 import 'package:khedma/app/splash_screen.dart';
 import 'package:khedma/features/Notification/presentation/screens/provider_notification.dart';
 import 'package:khedma/features/Notification/presentation/screens/service_notification.dart';
 import 'package:khedma/features/Profile/Presentation/screens/profile_screen.dart';
 import 'package:khedma/features/Provider/presentation/screens/provider_home.dart';
 import 'package:khedma/features/Provider/presentation/screens/provider_shell.dart';
-import 'package:khedma/features/Service/presentation/screens/service_home.dart';
-import 'package:khedma/features/Service/presentation/screens/service_shell.dart';
+import 'package:khedma/features/Services/presentation/screens/Service/service_home.dart';
+import 'package:khedma/features/Services/presentation/screens/service_shell.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/complete_profile_page.dart';
@@ -70,12 +70,12 @@ class RouteConfig {
     // log("isFirstTimeDone :  ${authState.isFirstTimeDone}");
 
     // log("isFirstTime :  ${authState.isFirstTime}");
-    // إذا كانت أول مرة → نذهب إلى onboarding
+    // إذا كانت أول مرة نذهب إلى onboarding
     if (authState.onboardingStatus == OnboardingStatus.firstTime) {
       if (currentPath == AppRoutes.onboarding) return null;
       return AppRoutes.onboarding;
     }
-    // // بعد إتمام onboarding → لا يجوز البقاء في /onboarding
+    // بعد إتمام onboarding  لا يجوز البقاء في /onboarding
     if (currentPath == AppRoutes.onboarding) {
       return AppRoutes.login; // ← أضف هذا
     }

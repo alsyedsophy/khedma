@@ -5,8 +5,8 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:khedma/Core/constants/app_emums.dart';
-import 'package:khedma/Core/errors/extentions.dart';
+import 'package:khedma/core/constants/app_emums.dart';
+import 'package:khedma/core/errors/extentions.dart';
 import 'package:khedma/features/auth/data/models/user_model.dart';
 
 abstract class AuthRemoteDataSource {
@@ -142,7 +142,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception('فشل تسجيل الدخول');
       }
       final OAuthCredential credential = FacebookAuthProvider.credential(
-        result.accessToken!.token,
+        result.accessToken!.tokenString,
       );
       final UserCredential userCredential = await _firebaseAuth
           .signInWithCredential(credential);

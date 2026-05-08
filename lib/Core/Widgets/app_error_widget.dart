@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:khedma/Core/Widgets/app_button.dart';
-import 'package:khedma/Core/design_system/tokens/app_color.dart';
-import 'package:khedma/Core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/Core/design_system/tokens/app_typography.dart';
-import 'package:khedma/Core/extentions/app_extentions.dart';
+import 'package:khedma/core/Widgets/app_button.dart';
+import 'package:khedma/core/design_system/tokens/app_color.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/design_system/tokens/app_typography.dart';
+import 'package:khedma/core/extentions/app_extentions.dart';
 
 class AppErrorWidget extends StatelessWidget {
   const AppErrorWidget({super.key, required this.message, this.onRetry});
