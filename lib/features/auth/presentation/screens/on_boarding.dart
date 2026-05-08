@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:khedma/core/Theme/app_colors.dart';
 import 'package:khedma/core/Widgets/app_button.dart';
 import 'package:khedma/core/Widgets/app_loading.dart';
 import 'package:khedma/core/constants/app_assets.dart';
 import 'package:khedma/core/constants/app_emums.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/core/design_system/tokens/app_typography.dart';
-import 'package:khedma/core/extentions/app_extentions.dart';
+import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
+import 'package:khedma/features/auth/presentation/widgets/user_type_widget.dart';
 
 class OnBoarding extends StatefulWidget {
   const OnBoarding({super.key});
@@ -80,54 +80,6 @@ class _OnBoardingState extends State<OnBoarding> with AuthEventListenerMixin {
             ),
           );
         },
-      ),
-    );
-  }
-}
-
-class UserTypeWidget extends StatelessWidget {
-  const UserTypeWidget({
-    super.key,
-    required this.selected,
-    required this.userType,
-    required this.title,
-  });
-
-  final bool selected;
-  final String userType;
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      height: AppSpacing.h_152,
-      padding: AppSpacing.h_12.allPadding,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: selected ? AppColors.primary : AppColors.grey400,
-        ),
-        borderRadius: AppSpacing.r_10.borderRaduis,
-        color: selected ? AppColors.primaryLight : AppColors.background,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(userType, style: AppTypography.headlineMedium),
-              AppSpacing.h_6.verticalSpace,
-              Text(title, style: AppTypography.bodyMedium),
-            ],
-          ),
-          Icon(
-            Icons.check,
-            size: AppSpacing.s_20,
-            color: selected ? AppColors.primary : AppColors.grey400,
-          ),
-        ],
       ),
     );
   }

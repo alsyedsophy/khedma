@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:khedma/core/Theme/app_colors.dart';
 import 'package:khedma/core/Widgets/app_button.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/core/design_system/tokens/app_typography.dart';
-import 'package:khedma/core/extentions/num_extentions.dart';
-import 'package:khedma/core/extentions/widget_extentions.dart';
+import 'package:khedma/core/extensions/num_extensions.dart';
+import 'package:khedma/core/extensions/widget_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Verify%20Email/verify_email_cubit.dart';
-import 'package:khedma/features/auth/presentation/cubit/Verify%20Email/verify_email_state.dart';
-import 'package:khedma/features/auth/presentation/screens/login.dart';
+import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
+import 'package:khedma/features/auth/presentation/widgets/resend_section.dart';
 
 class VerifyEmail extends StatelessWidget {
   const VerifyEmail({super.key});
@@ -58,89 +57,9 @@ class _VerifyEmailViewState extends State<_VerifyEmailView>
 
             AppSpacing.h_12.verticalSpace,
 
-            const _ResendSection(),
+            const ResendSection(),
           ],
         ).paddingHorizontal(AppSpacing.h_24),
-      ),
-    );
-  }
-}
-
-class _ResendSection extends StatelessWidget {
-  const _ResendSection();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<VerifyEmailCubit, VerifyEmailState>(
-      builder: (context, state) {
-        final isFinished = state is VerifyEmailFinished;
-        final seconds = state is VerifyEmailCounting ? state.secondsLeft : 0;
-
-        return Row(
-          children: [
-            CircularTimer(secondsLeft: seconds),
-            AppSpacing.w_8.horizontalSpace,
-
-            Expanded(
-              child: InkWell(
-                onTap: isFinished
-                    ? () {
-                        context.read<AuthCubit>().sendEmailVerification();
-
-                        context.read<VerifyEmailCubit>().resetTimer();
-                      }
-                    : null,
-                child: RichText(
-                  text: TextSpan(
-                    text: 'Did not receive code? ',
-                    style: AppTypography.bodyLarge,
-                    children: [
-                      TextSpan(
-                        text: 'Send code',
-                        style: AppTypography.bodyLarge.copyWith(
-                          color: isFinished ? AppColors.primary : Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class CircularTimer extends StatelessWidget {
-  final int secondsLeft;
-  final int totalSeconds;
-
-  const CircularTimer({
-    super.key,
-    required this.secondsLeft,
-    this.totalSeconds = 60,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final progress = (secondsLeft / totalSeconds).clamp(0.0, 1.0);
-
-    return SizedBox(
-      width: 40,
-      height: 40,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CircularProgressIndicator(
-            value: progress,
-            strokeWidth: 3,
-            backgroundColor: Colors.grey.shade300,
-            color: AppColors.primary,
-          ),
-          Text("$secondsLeft", style: AppTypography.bodySmall),
-        ],
       ),
     );
   }

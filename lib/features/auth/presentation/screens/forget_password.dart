@@ -5,12 +5,14 @@ import 'package:khedma/core/Widgets/app_button.dart';
 import 'package:khedma/core/Widgets/app_loading.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/core/design_system/tokens/app_typography.dart';
-import 'package:khedma/core/extentions/app_extentions.dart';
+import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
-import 'package:khedma/features/auth/presentation/widgets/app_text_form_field.dart';
+import 'package:khedma/core/Widgets/app_text_form_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/email_field.dart';
+import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
 
 class ForgetPassword extends StatefulWidget {
   const ForgetPassword({super.key});
@@ -57,14 +59,7 @@ class _ForgetPasswordState extends State<ForgetPassword>
                       style: AppTypography.bodyLarge,
                     ),
                     AppSpacing.h_48.verticalSpace,
-                    AppTextFormField(
-                      controller: _emailController,
-                      height: AppSpacing.h_56,
-                      hintText: 'Enter your email.',
-                      keyboardType: TextInputType.emailAddress,
-                      prefixIcon: Icon(Icons.email_outlined),
-                      validator: (value) => Validators.validateEmail(value),
-                    ),
+                    EmailField(controller: _emailController),
                     AppSpacing.h_84.verticalSpace,
                     AppButton(label: 'Send Code', onPressed: () => _forget()),
                   ],
