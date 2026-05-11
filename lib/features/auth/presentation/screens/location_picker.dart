@@ -1,4 +1,6 @@
 // location_picker_page.dart
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -30,10 +32,13 @@ class LocationPickerView extends StatefulWidget {
 class _LocationPickerViewState extends State<LocationPickerView> {
   GoogleMapController? _mapController;
 
+  late final LocationPickerCubit locationCubit;
+
   @override
-  void dispose() {
-    context.read<LocationPickerCubit>().reset();
-    super.dispose();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // نحفظ reference للـ Cubit مرة واحدة
+    locationCubit = context.read<LocationPickerCubit>();
   }
 
   void _onMapCreated(GoogleMapController controller) {
@@ -45,6 +50,13 @@ class _LocationPickerViewState extends State<LocationPickerView> {
   }
 
   @override
+  void dispose() {
+    locationCubit.reset(); //  استخدم المتغير المحفوظ
+    _mapController?.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('اختر موقعك'), centerTitle: true),
@@ -52,7 +64,16 @@ class _LocationPickerViewState extends State<LocationPickerView> {
         listener: (context, state) {
           if (state.status == LocationPickerStatus.confirmed) {
             // إبلاغ AuthCubit بأن الموقع تم اختياره
-            context.read<AuthCubit>().locationSelected();
+            log(
+              "======================== تم الدخول الى الاستماع واختيار ال location",
+            );
+            context.read<AuthCubit>().locationSelected(
+              state.selectedLocation!,
+              state.address!,
+            );
+            log(
+              "======================== تم الخروج من الاستماع واختيار ال location",
+            );
             // يمكن إغلاق الصفحة أو الانتقال تلقائياً
             // Navigator.of(context).pop();
           }

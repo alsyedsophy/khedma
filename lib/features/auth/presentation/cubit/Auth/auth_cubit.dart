@@ -62,8 +62,9 @@ class AuthCubit extends Cubit<AuthState> {
   }) : super(const AuthState(isLoading: false));
 
   AuthStatus _resolveAuthStatus(UserEntity? user) {
+    log('User is _resolveAuthState is : $user');
     if (user == null) return AuthStatus.unauthenticated;
-    if (!user.isEmailVerified) return AuthStatus.authenticated;
+    if (!user.isEmailVerified) return AuthStatus.emailUnVerified;
     if (!user.isLocationSelected) return AuthStatus.locationNotSelected;
     if (!user.isProfileCompleted) return AuthStatus.profileIncomplete;
     return AuthStatus.fullySetup;
@@ -75,12 +76,12 @@ class AuthCubit extends Cubit<AuthState> {
     // التحقق من أول مرة
     final isFirstTimeResult = await isFirstTimeUseCase();
     final isFirst = isFirstTimeResult.fold((_) => true, (val) => val);
-    log('is First Time in check : $isFirst');
+    // log('is First Time in check : $isFirst');
     if (isFirst) {
       emit(
         state.copyWith(
           isLoading: false,
-          onboardingStatus: OnboardingStatus.firstTime,
+          userRoleStatus: UserRoleStatus.notSelected,
           authStatus: AuthStatus.unauthenticated,
         ),
       );
@@ -89,15 +90,15 @@ class AuthCubit extends Cubit<AuthState> {
 
     // التحقق من وجود مستخدم مخبأ
     final userResult = await getCachedUserUseCase();
-    log('User Result in check : $userResult');
+    // log('User Result in check : $userResult');
     final user = userResult.fold((failure) => null, (user) => user);
-    log('checkAuthState: user = $user, isFirst = $isFirst');
+    // log('checkAuthState: user = $user, isFirst = $isFirst');
 
     if (user == null) {
       emit(
         state.copyWith(
           isLoading: false,
-          onboardingStatus: OnboardingStatus.done,
+          userRoleStatus: UserRoleStatus.done,
           authStatus: AuthStatus.unauthenticated,
         ),
       );
@@ -105,32 +106,12 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           isLoading: false,
-          onboardingStatus: OnboardingStatus.done,
+          userRoleStatus: UserRoleStatus.done,
           authStatus: _resolveAuthStatus(user),
           user: user,
         ),
       );
     }
-    // userResult.fold(
-    //   (failure) {
-    //     //  فشل الـ cache لا يستدعي snackbar في الـ startup — نسجل فقط
-    //     emit(
-    //       state.copyWith(
-    //         isLoading: false,
-    //         onboardingStatus: OnboardingStatus.done,
-    //         authStatus: AuthStatus.unauthenticated,
-    //       ),
-    //     );
-    //   },
-    //   (user) => emit(
-    //     state.copyWith(
-    //       isLoading: false,
-    //       onboardingStatus: OnboardingStatus.done,
-    //       authStatus: _resolveAuthStatus(user),
-    //       user: user,
-    //     ),
-    //   ),
-    // );
   }
 
   Future<void> loginWithEmail(
@@ -155,7 +136,7 @@ class AuthCubit extends Cubit<AuthState> {
             isLoading: false,
             user: user,
             authStatus: _resolveAuthStatus(user),
-            onboardingStatus: OnboardingStatus.done,
+            userRoleStatus: UserRoleStatus.done,
           ),
         );
       },
@@ -184,10 +165,8 @@ class AuthCubit extends Cubit<AuthState> {
           state.copyWith(
             isLoading: false,
             user: user,
-            authStatus: _resolveAuthStatus(
-              user,
-            ), // بعد التسجيل، البريد غير مفعل
-            onboardingStatus: OnboardingStatus.done,
+            authStatus: _resolveAuthStatus(user),
+            userRoleStatus: UserRoleStatus.done,
           ),
         );
       },
@@ -208,7 +187,7 @@ class AuthCubit extends Cubit<AuthState> {
           isLoading: false,
           user: user,
           authStatus: _resolveAuthStatus(user),
-          onboardingStatus: OnboardingStatus.done,
+          userRoleStatus: UserRoleStatus.done,
         ),
       ),
     );
@@ -230,7 +209,7 @@ class AuthCubit extends Cubit<AuthState> {
             isLoading: false,
             user: user,
             authStatus: _resolveAuthStatus(user),
-            onboardingStatus: OnboardingStatus.done,
+            userRoleStatus: UserRoleStatus.done,
           ),
         );
       },
@@ -312,7 +291,7 @@ class AuthCubit extends Cubit<AuthState> {
       (_) => emit(
         const AuthState(
           isLoading: false,
-          onboardingStatus: OnboardingStatus.done,
+          userRoleStatus: UserRoleStatus.done,
           authStatus: AuthStatus.unauthenticated,
         ),
       ),
@@ -320,9 +299,11 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// إكمال شاشة الترحيب (onboarding) وتعيين نوع المستخدم
-  Future<void> completeOnboarding(UserType userType) async {
+  //! ============================== Something Problem
+  ///  تمام ولكن انا ارى انه يوجد هنا مشكله  وتم ملاحظتها من خلال ال Repo
+  Future<void> setUserRole(UserType userType) async {
     emit(state.copyWith(isLoading: true));
-    log("state in cubit : $state");
+    // log("state in cubit : $state");
     // أولاً: تعيين نوع المستخدم
     final result = await setUserTypeUseCase(userType: userType);
     result.fold(
@@ -342,9 +323,8 @@ class AuthCubit extends Cubit<AuthState> {
           (_) => emit(
             state.copyWith(
               isLoading: false,
-              onboardingStatus: OnboardingStatus.done,
-              authStatus:
-                  AuthStatus.unauthenticated, // بعدها يذهب إلى تسجيل الدخول
+              userRoleStatus: UserRoleStatus.done,
+              authStatus: AuthStatus.unauthenticated,
               selectedUserType: userType,
             ),
           ),
@@ -354,17 +334,62 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   /// تعيين أن المستخدم اختار الموقع (يُستدعى من صفحة الموقع بعد التأكيد)
-  Future<void> locationSelected() async {
-    final result = await setLocationSelectedUseCase();
-    result.fold((failure) => _errorEvent(failure.message), (_) {
-      final updatedUser = state.user?.copyWith(isLocationSelected: true);
-      emit(
-        state.copyWith(
-          user: updatedUser,
-          authStatus: _resolveAuthStatus(updatedUser),
-        ),
-      );
-    });
+  // Future<void> locationSelected() async {
+  //   emit(state.copyWith(isLoading: true));
+  //   final result = await setLocationSelectedUseCase();
+  //   result.fold(
+  //     (failure) {
+  //       emit(state.copyWith(isLoading: false));
+  //       _errorEvent(failure.message);
+  //     },
+  //     (_) {
+  //       final updatedUser = state.user?.copyWith(isLocationSelected: true);
+  //       emit(
+  //         state.copyWith(
+  //           isLoading: false,
+  //           user: updatedUser,
+  //           authStatus: _resolveAuthStatus(updatedUser),
+  //         ),
+  //       );
+  //     },
+  //   );
+  // }
+
+  Future<void> locationSelected(LatLng latLng, String address) async {
+    emit(state.copyWith(isLoading: true));
+    final location = LocationEntity(
+      latitude: latLng.latitude,
+      longitude: latLng.longitude,
+      address: address,
+    );
+
+    final result = await setLocationAddressUseCase(latLng, address);
+
+    result.fold(
+      (failure) {
+        log(
+          " ========== ============== ==========Failure in Locatio Selected At Auth Cubit: ${failure.message} ",
+        );
+        emit(state.copyWith(isLoading: false));
+      },
+      (_) {
+        log(
+          " ======== ============ ============== Success in Locatio Selected At Auth Cubit ",
+        );
+        final updatedUser = state.user?.copyWith(
+          isLocationSelected: true,
+          location: location,
+        );
+
+        emit(
+          state.copyWith(
+            isLoading: false,
+            user: updatedUser,
+            authStatus: _resolveAuthStatus(updatedUser),
+          ),
+        );
+      },
+    );
   }
 
   Future<void> locationAddress(LatLng latLng, String address) async {
@@ -379,9 +404,7 @@ class AuthCubit extends Cubit<AuthState> {
       emit(
         state.copyWith(
           user: updatedUser,
-          authStatus: _resolveAuthStatus(
-            updatedUser,
-          ), // ← استخدم _resolveAuthStatus
+          authStatus: _resolveAuthStatus(updatedUser),
         ),
       );
     });

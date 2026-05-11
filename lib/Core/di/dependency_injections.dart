@@ -25,6 +25,7 @@ import 'package:khedma/features/auth/presentation/cubit/Location/location_cubit.
 import 'package:khedma/features/categories/data/datasources/categories_remote_data_source.dart';
 import 'package:khedma/features/categories/data/repositories/categories_repo_impl.dart';
 import 'package:khedma/features/categories/domain/repositories/categories_repo.dart';
+import 'package:khedma/features/categories/domain/usecases/get_categories_use_case.dart';
 import 'package:khedma/features/categories/presentation/bloc/categories_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -130,7 +131,7 @@ Future<void> init() async {
 
   //! ==============================================
 
-  //? CAtegories Feature
+  //? Categories Feature
 
   // Data
   sl.registerLazySingleton<CategoriesRemoteDataSource>(
@@ -143,7 +144,7 @@ Future<void> init() async {
   );
 
   // Use cases
-  sl.registerLazySingleton(() => GetCachedUserUseCase(sl()));
+  sl.registerLazySingleton(() => GetCategoriesUseCase(repo: sl()));
 
   // Bloc
   sl.registerLazySingleton(() => CategoriesBloc(sl()));
