@@ -1,31 +1,26 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:khedma/core/Widgets/app_button.dart';
+import 'package:khedma/core/Widgets/error_page.dart';
 import 'package:khedma/core/constants/app_emums.dart';
-import 'package:khedma/core/design_system/tokens/app_spacing.dart';
-import 'package:khedma/core/design_system/tokens/app_typography.dart';
-import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/app/routing/app_routs.dart';
 import 'package:khedma/app/routing/router_notifier.dart';
 import 'package:khedma/app/splash_screen.dart';
 import 'package:khedma/features/Notification/presentation/screens/provider_notification.dart';
 import 'package:khedma/features/Notification/presentation/screens/service_notification.dart';
 import 'package:khedma/features/Profile/Presentation/screens/profile_screen.dart';
-import 'package:khedma/features/Provider/presentation/screens/provider_home.dart';
-import 'package:khedma/features/Provider/presentation/screens/provider_shell.dart';
+import 'package:khedma/features/Services/presentation/screens/Provider/provider_home.dart';
+import 'package:khedma/features/Services/presentation/screens/Provider/provider_shell.dart';
 import 'package:khedma/features/Services/presentation/screens/Service/service_home.dart';
-import 'package:khedma/features/Services/presentation/screens/service_shell.dart';
-import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
+import 'package:khedma/features/Services/presentation/screens/Service/service_shell.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/complete_profile_page.dart';
 import 'package:khedma/features/auth/presentation/screens/forget_password.dart';
 import 'package:khedma/features/auth/presentation/screens/home.dart';
 import 'package:khedma/features/auth/presentation/screens/location_picker.dart';
 import 'package:khedma/features/auth/presentation/screens/login.dart';
-import 'package:khedma/features/auth/presentation/screens/on_boarding.dart';
+import 'package:khedma/features/auth/presentation/screens/user_role_screen.dart.dart';
 import 'package:khedma/features/auth/presentation/screens/register.dart';
 import 'package:khedma/features/auth/presentation/screens/verify_email.dart';
 import 'package:khedma/features/chat/presentation/screens/chat_screen.dart';
@@ -37,7 +32,7 @@ class RouteConfig {
   late final goRouter = GoRouter(
     initialLocation: AppRoutes.splash,
     refreshListenable: notifier,
-    errorBuilder: (context, state) => _ErrorPage(),
+    errorBuilder: (context, state) => ErrorPage(),
     routes: _routes,
     redirect: _redirect,
   );
@@ -57,49 +52,48 @@ class RouteConfig {
   };
 
   String? _redirect(BuildContext context, GoRouterState state) {
-    // log('REDIRECTED CALLED');
     final authState = notifier.authState;
     final currentPath = state.uri.path;
-    log(authState.toString());
-    log(currentPath.toString());
+    log('================ ROUTER REDIRECT ================');
+    log('Current Path => $currentPath');
+    log('Auth Status => ${authState.authStatus}');
+    log('User Role Status => ${authState.userRoleStatus}');
+    log('Is Logged In => ${authState.isLoggedIn}');
+    log('=================================================');
     // إذا كانت الحالة غير معروفة (لا تزال تحميل)، لا نعيد توجيه
     if (authState.authStatus == AuthStatus.unknown ||
-        authState.onboardingStatus == OnboardingStatus.unKnown) {
+        authState.userRoleStatus == UserRoleStatus.unKnown) {
       return null;
     }
-    // log("isFirstTimeDone :  ${authState.isFirstTimeDone}");
 
-    // log("isFirstTime :  ${authState.isFirstTime}");
-    // إذا كانت أول مرة نذهب إلى onboarding
-    if (authState.onboardingStatus == OnboardingStatus.firstTime) {
-      if (currentPath == AppRoutes.onboarding) return null;
-      return AppRoutes.onboarding;
+    // المستخدم ما زال لم يختر نوع الحساب
+    if (authState.userRoleStatus == UserRoleStatus.notSelected) {
+      if (currentPath == AppRoutes.userRole) return null;
+      return AppRoutes.userRole;
     }
-    // بعد إتمام onboarding  لا يجوز البقاء في /onboarding
-    if (currentPath == AppRoutes.onboarding) {
-      return AppRoutes.login; // ← أضف هذا
-    }
-    if (authState.onboardingStatus == OnboardingStatus.done &&
-        !authState.isLoggedIn) {
-      if (_publicRoutes.contains(currentPath)) return null;
-      return AppRoutes.login;
+
+    /// منع الرجوع لشاشة اختيار النوع بعد الاختيار
+    if (currentPath == AppRoutes.userRole &&
+        authState.userRoleStatus == UserRoleStatus.done) {
+      return authState.isLoggedIn
+          ? _routeForStatus(authState, context)
+          : AppRoutes.login;
     }
 
     // إذا لم يكن مسجل الدخول → نسمح فقط بالمسارات العامة
     if (!authState.isLoggedIn) {
-      // log("isLoggedIn : ${authState.isLoggedIn}");
       if (_publicRoutes.contains(currentPath)) return null;
       return AppRoutes.login;
     }
 
     // إذا كان مسجل الدخول ولكن في مسار عام → نوجهه حسب حالته
     if (_publicRoutes.contains(currentPath)) {
-      return _routeForStatus(authState.authStatus, context);
+      return _routeForStatus(authState, context);
     }
 
     // فرض التدفق الإلزامي للإعداد
     switch (authState.authStatus) {
-      case AuthStatus.authenticated:
+      case AuthStatus.emailUnVerified:
         if (currentPath == AppRoutes.verifyEmail) return null;
         return AppRoutes.verifyEmail;
 
@@ -112,23 +106,22 @@ class RouteConfig {
         return AppRoutes.completeProfile;
 
       case AuthStatus.fullySetup:
-        // لا نسمح بالعودة إلى مسارات الإعداد
-        log('============================================');
-
-        final userType = context.read<AuthCubit>().state.user?.userType;
-        log('============================ $userType');
-        return userType == UserType.provider
-            ? AppRoutes.providerHome
-            : AppRoutes.serviceHome;
-
+        final target = _homeRoute(authState);
+        if (target == currentPath) return null;
+        if (_setupRoutes.contains(currentPath)) {
+          return target;
+        }
+        return null;
       default:
         return null;
     }
   }
 
-  String? _routeForStatus(AuthStatus status, BuildContext context) {
-    switch (status) {
-      case AuthStatus.authenticated:
+  String _routeForStatus(AuthState authState, BuildContext context) {
+    switch (authState.authStatus) {
+      // case AuthStatus.unauthenticated: //! يعتبر انى لم استخدمها الى الان نهائيا
+      //   return AppRoutes
+      //       .login; //? هذه انا من قمت باضافتها حاليا لم تكن مضافة من قبل كلنت ضمن ال case التى تليها
       case AuthStatus.emailUnVerified:
         return AppRoutes.verifyEmail;
       case AuthStatus.locationNotSelected:
@@ -136,14 +129,18 @@ class RouteConfig {
       case AuthStatus.profileIncomplete:
         return AppRoutes.completeProfile;
       case AuthStatus.fullySetup:
-        final userType = context.read<AuthCubit>().state.user?.userType;
-        // إذا لم يحدد نوع المستخدم بعد، نعتبر service كافتراضي
-        return userType == UserType.provider
-            ? AppRoutes.providerHome
-            : AppRoutes.serviceHome;
+        return _homeRoute(authState);
       default:
-        return null;
+        return AppRoutes.login;
     }
+  }
+
+  String _homeRoute(AuthState authState) {
+    final userType = authState.user?.userType;
+
+    return userType == UserType.provider
+        ? AppRoutes.providerHome
+        : AppRoutes.serviceHome;
   }
 
   List<RouteBase> get _routes => [
@@ -154,21 +151,18 @@ class RouteConfig {
       builder: (context, state) => SplashScreen(),
     ),
     GoRoute(
-      path: AppRoutes.onboarding,
-      name: AppRoutes.onboarding,
-      builder: (context, state) => OnBoarding(),
+      path: AppRoutes.userRole,
+      name: AppRoutes.userRole,
+      builder: (context, state) => UserRoleScreen(),
     ),
     GoRoute(
       path: AppRoutes.login,
       name: AppRoutes.login,
       builder: (context, state) {
-        // ✅ أولاً: لو جاء userType من pushNamed (onboarding القديم) نأخذه
-        // ثانياً: لو جاء من redirect نأخذه من AuthState.selectedUserType
-        // ثالثاً: fallback لـ client لو مفيش في الحالتين
         final fromExtra = state.extra is UserType
             ? state.extra as UserType
             : null;
-        final fromState = context.read<AuthCubit>().state.selectedUserType;
+        final fromState = notifier.authState.selectedUserType;
         final userType = fromExtra ?? fromState ?? UserType.service;
         return Login(userType: userType);
       },
@@ -180,7 +174,7 @@ class RouteConfig {
         final fromExtra = state.extra is UserType
             ? state.extra as UserType
             : null;
-        final fromState = context.read<AuthCubit>().state.selectedUserType;
+        final fromState = notifier.authState.selectedUserType;
         final userType = fromExtra ?? fromState ?? UserType.service;
         return Register(userType: userType);
       },
@@ -316,30 +310,6 @@ class RouteConfig {
           ],
         ),
       ],
-    );
-  }
-}
-
-class _ErrorPage extends StatelessWidget {
-  const _ErrorPage();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Center(
-          child: Column(
-            children: [
-              Text('الصفحه غير موجوده', style: AppTypography.bodyLarge),
-              AppSpacing.h_30.verticalSpace,
-              AppButton(
-                label: 'الذهاب الى الصفحه الرئيسيه',
-                onPressed: () => context.goNamed(AppRoutes.login),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

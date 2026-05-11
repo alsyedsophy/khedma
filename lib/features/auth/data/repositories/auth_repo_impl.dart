@@ -287,26 +287,21 @@ class AuthRepositoryImpl implements AuthRepo {
       await remoteDataSource.setLocationAddress(
         LocationModel.fromEntity(location),
       );
+      log(" Set location Address Done");
       final cachedUser = await localDataSource.getCachedUser();
+      log(" Get Cached User Done");
       if (cachedUser != null) {
         final updated = cachedUser.copyWith(
           location: LocationModel.fromEntity(location),
+          isLocationSelected: true,
         );
         await localDataSource.cacheUser(UserModel.fromEntity(updated));
+        log(" update Cached User Done");
       }
       return Right(null);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    } on CacheException catch (e) {
-      return Left(CacheFailure(e.message));
-    } on AuthException catch (e) {
-      return Left(AuthFailure(e.message));
-    } on ValidationException catch (e) {
-      return Left(ValidationFailure(e.message));
-    } on UnKnowException catch (e) {
-      return Left(UnKnowFailure(e.message));
     } catch (e) {
-      return Left(UnKnowFailure(e.toString()));
+      log("======================= ${e.toString()}");
+      return Left(ServerFailure(e.toString()));
     }
   }
 

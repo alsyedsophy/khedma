@@ -126,9 +126,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   // يجب ان يتم التعريف اولا قبل اى شئ
   Future<void> _intializeGoogle() async {
     await _googleSignIn.initialize(
-      clientId: null, // الخاص بال ios اختبارى ولا يوجد مشكله منه
       serverClientId:
-          '', // يجب ان يضاف لان بدونه لا يشتغل على ال Android and Wep
+          '526642857625-3c10v8soctjqe2c64ti124m3morkvh39.apps.googleusercontent.com',
     );
   }
 
@@ -186,13 +185,9 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         throw Exception('فشل تسجيل الدخول الى Firebase');
       }
       return await _getOrCreateUser(userCredential.user!, userType);
-    } on GoogleSignInException catch (e) {
-      log(e.toString());
-      throw GoogleErrorHandle.handle(e);
-    } on FirebaseAuthException catch (e) {
-      throw FirebaseErrorHandle.handle(e);
     } catch (e) {
-      throw UnKnowException(message: 'خطأ غير متوقع ${e.toString()}');
+      log('Google Falid : $e');
+      throw ServerException(message: e.toString());
     }
   }
 
@@ -210,11 +205,27 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<bool> checkEmailVerified() async {
     try {
-      await _firebaseAuth.currentUser?.reload();
-      return _firebaseAuth.currentUser?.emailVerified ?? false;
+      final currentUser = _firebaseAuth.currentUser;
+      if (currentUser == null) {
+        throw AuthException(message: 'Not authenticated');
+      }
+      // ضروري لجلب أحدث حالة من Firebase
+      await currentUser.reload();
+      final bool isVerified = currentUser.emailVerified;
+      // إذا لم يكن الإيميل مؤكد بعد
+      if (!isVerified) {
+        return false;
+      }
+      final uid = currentUser.uid;
+      await _firestore.collection('users').doc(uid).update({
+        'isEmailVerified': true,
+      });
+
+      return true;
     } on FirebaseAuthException catch (e) {
       throw FirebaseErrorHandle.handle(e);
     } catch (e) {
+      log("Error in checkEmailVerified: $e");
       throw UnKnowException(message: e.toString());
     }
   }
@@ -278,11 +289,13 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final uid = _firebaseAuth.currentUser?.uid;
       if (uid == null) throw AuthException(message: 'Not authentecated');
       await _firestore.collection('users').doc(uid).update({
-        'location': location,
+        'location': location.toMap(),
+        'isLocationSelected': true,
       });
     } on FirebaseAuthException catch (e) {
       throw FirebaseErrorHandle.handle(e);
     } catch (e) {
+      log("Error in Set Location Address is ============== : $e");
       throw UnKnowException(message: e.toString());
     }
   }

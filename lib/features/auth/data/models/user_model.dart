@@ -47,7 +47,7 @@ class UserModel extends UserEntity {
       'email': email,
       'name': name,
       'phone': phone,
-      'location': location != null ? (location as LocationModel).toMap() : null,
+      'location': location != null ? LocationModel.fromEntity(location!) : null,
       'profileImageUrl': profileImageUrl,
       'isEmailVerified': isEmailVerified,
       'isLocationSelected': isLocationSelected,

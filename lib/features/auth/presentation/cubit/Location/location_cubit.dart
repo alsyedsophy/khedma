@@ -1,4 +1,6 @@
 // location_picker_cubit.dart
+import 'dart:developer';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
@@ -155,28 +157,42 @@ class LocationPickerCubit extends Cubit<LocationPickerState> {
   }
 
   /// تأكيد الموقع (يمكن استدعاؤها من الـ UI لتمرير النتيجة)
-  void confirmLocation() async {
+  // void confirmLocation() async {
+  //   if (state.selectedLocation != null && state.address != null) {
+  //     emit(state.copyWith(status: LocationPickerStatus.confirming));
+  //     // هنا يمكن حفظ الموقع في Firestore أو تمريره إلى Cubit آخر
+  //     final result = await setLocationSelectedUseCase();
+  //     result.fold(
+  //       (failure) => emit(state.copyWith(status: LocationPickerStatus.error)),
+  //       (_) async {
+  //         print('==================== ${state.address}=============');
+  //         final setAddress = await setLocationAddressUseCase(
+  //           state.selectedLocation!,
+  //           state.address!,
+  //         );
+  //         setAddress.fold(
+  //           (failure) {
+  //             log(
+  //               "Select Address in Location Cubit is Failure : ${failure.message}",
+  //             );
+  //             emit(state.copyWith(status: LocationPickerStatus.error));
+  //           },
+  //           (_) {
+  //             log("Select Address In Location Cubit is Success ");
+  //             emit(state.copyWith(status: LocationPickerStatus.confirmed));
+  //           },
+  //         );
+  //       },
+  //     );
+  //     // بعد نجاح العملية:
+  //     // emit(state.copyWith(status: LocationPickerStatus.confirmed));
+  //   }
+  // }
+
+  void confirmLocation() {
     if (state.selectedLocation != null && state.address != null) {
-      emit(state.copyWith(status: LocationPickerStatus.confirming));
-      // هنا يمكن حفظ الموقع في Firestore أو تمريره إلى Cubit آخر
-      final result = await setLocationSelectedUseCase();
-      result.fold(
-        (failure) => emit(state.copyWith(status: LocationPickerStatus.error)),
-        (_) async {
-          print('==================== ${state.address}=============');
-          final setAddress = await setLocationAddressUseCase(
-            state.selectedLocation!,
-            state.address!,
-          );
-          setAddress.fold(
-            (failure) =>
-                emit(state.copyWith(status: LocationPickerStatus.error)),
-            (_) => emit(state.copyWith(status: LocationPickerStatus.confirmed)),
-          );
-        },
-      );
-      // بعد نجاح العملية:
-      // emit(state.copyWith(status: LocationPickerStatus.confirmed));
+      log("======================== confirm location ===============");
+      emit(state.copyWith(status: LocationPickerStatus.confirmed));
     }
   }
 

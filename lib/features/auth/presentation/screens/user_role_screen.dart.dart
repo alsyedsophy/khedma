@@ -13,14 +13,15 @@ import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/widgets/user_type_widget.dart';
 
-class OnBoarding extends StatefulWidget {
-  const OnBoarding({super.key});
+class UserRoleScreen extends StatefulWidget {
+  const UserRoleScreen({super.key});
 
   @override
-  State<OnBoarding> createState() => _OnBoardingState();
+  State<UserRoleScreen> createState() => _UserRoleScreenState();
 }
 
-class _OnBoardingState extends State<OnBoarding> with AuthEventListenerMixin {
+class _UserRoleScreenState extends State<UserRoleScreen>
+    with AuthEventListenerMixin {
   UserType? _selectedType;
 
   void _selectType(UserType type) {
@@ -33,7 +34,7 @@ class _OnBoardingState extends State<OnBoarding> with AuthEventListenerMixin {
   void _onNext() {
     final selected = _selectedType;
     if (selected == null) return;
-    context.read<AuthCubit>().completeOnboarding(selected);
+    context.read<AuthCubit>().setUserRole(selected);
   }
 
   @override
