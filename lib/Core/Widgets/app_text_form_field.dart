@@ -1,108 +1,91 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:khedma/core/Theme/app_colors.dart';
+import 'package:khedma/core/design_system/tokens/app_spacing.dart';
+import 'package:khedma/core/extensions/app_extensions.dart';
 
 class AppTextFormField extends StatefulWidget {
+  final String? label;
+  final String? hint;
+  final TextEditingController? controller;
+  final String? Function(String?)? validator;
+  final bool obscureText;
+  final TextInputType keyboardType;
+  final TextInputAction textInputAction;
+  final IconData? prefixIcon;
+  final Widget? suffix;
+  final int maxLines;
+  final int? maxLength;
+  final bool enabled;
+  final List<TextInputFormatter>? inputFormatters;
+  final void Function(String)? onChanged;
+  final void Function(String)? onFieldSubmitted;
+  final FocusNode? focusNode;
+
   const AppTextFormField({
     super.key,
+    this.label,
+    this.hint,
     this.controller,
-    this.hintText,
-    this.labelText,
     this.validator,
-    this.onChanged,
-    this.keyboardType,
-    this.isPassword = false,
+    this.obscureText = false,
+    this.keyboardType = TextInputType.text,
+    this.textInputAction = TextInputAction.next,
     this.prefixIcon,
-    this.width,
-    this.height,
+    this.suffix,
     this.maxLines = 1,
+    this.maxLength,
     this.enabled = true,
-    this.borderRadius = 8,
-    this.contentPadding,
+    this.inputFormatters,
+    this.onChanged,
+    this.onFieldSubmitted,
+    this.focusNode,
   });
 
-  final TextEditingController? controller;
-  final String? hintText;
-  final String? labelText;
-  final String? Function(String?)? validator;
-  final Function(String)? onChanged;
-  final TextInputType? keyboardType;
-  final bool isPassword;
-  final Widget? prefixIcon;
-
-  // 🔥 التحكم في الحجم
-  final double? width;
-  final double? height;
-
-  final int maxLines;
-  final bool enabled;
-  final double borderRadius;
-  final EdgeInsets? contentPadding;
-
   @override
-  State<AppTextFormField> createState() => _AppTextFormFieldState();
+  State<AppTextFormField> createState() => _AppTextFieldState();
 }
 
-class _AppTextFormFieldState extends State<AppTextFormField> {
-  bool obscureText = true;
+class _AppTextFieldState extends State<AppTextFormField> {
+  late bool _obscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.obscureText;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width ?? double.infinity,
-      height: widget.height, // 👈 هنا التحكم في الطول
-      child: TextFormField(
-        controller: widget.controller,
-        validator: widget.validator,
-        onChanged: widget.onChanged,
-        keyboardType: widget.keyboardType,
-        obscureText: widget.isPassword ? obscureText : false,
-        maxLines: widget.maxLines,
-        enabled: widget.enabled,
-        cursorColor: AppColors.primary,
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          labelText: widget.labelText,
+    return TextFormField(
+      controller: widget.controller,
+      validator: widget.validator,
+      obscureText: _obscure,
+      keyboardType: widget.keyboardType,
+      textInputAction: widget.textInputAction,
+      maxLines: widget.obscureText ? 1 : widget.maxLines,
+      maxLength: widget.maxLength,
+      enabled: widget.enabled,
+      inputFormatters: widget.inputFormatters,
+      onChanged: widget.onChanged,
+      onFieldSubmitted: widget.onFieldSubmitted,
+      focusNode: widget.focusNode,
 
-          prefixIcon: widget.prefixIcon,
-          suffixIcon: widget.isPassword
-              ? IconButton(
-                  onPressed: () {
-                    setState(() {
-                      obscureText = !obscureText;
-                    });
-                  },
-                  icon: Icon(
-                    obscureText ? Icons.visibility_off : Icons.visibility,
-                  ),
-                )
-              : null,
-
-          contentPadding:
-              widget.contentPadding ??
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-          ),
-
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            borderSide: const BorderSide(color: Colors.grey),
-          ),
-
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            borderSide: const BorderSide(color: AppColors.primary, width: 2),
-          ),
-
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            borderSide: const BorderSide(color: Colors.red),
-          ),
-
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(widget.borderRadius),
-            borderSide: const BorderSide(color: Colors.red, width: 2),
-          ),
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: AppColors.background,
+        labelText: widget.label,
+        hintText: widget.hint,
+        prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon) : null,
+        suffixIcon: widget.obscureText
+            ? IconButton(
+                icon: Icon(_obscure ? Icons.visibility_off : Icons.visibility),
+                onPressed: () => setState(() => _obscure = !_obscure),
+              )
+            : widget.suffix,
+        border: OutlineInputBorder(
+          borderRadius: AppSpacing.r_10.borderRaduis,
+          borderSide: BorderSide(color: Colors.transparent),
         ),
       ),
     );

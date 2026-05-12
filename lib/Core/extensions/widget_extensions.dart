@@ -17,6 +17,11 @@ extension WidgetExtensions on Widget {
     child: this,
   );
 
+  Widget paddingRight(double value) => Padding(
+    padding: EdgeInsets.only(right: value),
+    child: this,
+  );
+
   Widget onTap(VoidCallback onTap) => GestureDetector(
     onTap: onTap,
     behavior: HitTestBehavior.opaque,

@@ -98,30 +98,27 @@ class _CompleteProfilePageState extends State<CompleteProfilePage>
 
                 AppTextFormField(
                   controller: _nameController,
-                  height: AppSpacing.h_56,
-                  hintText: 'Enter your name',
+                  hint: 'Enter your name',
                   keyboardType: TextInputType.name,
                   validator: (value) => Validators.validateName(value),
-                  prefixIcon: Icon(Icons.person_2_outlined),
+                  prefixIcon: Icons.person_2_outlined,
                 ),
                 AppSpacing.h_12.verticalSpace,
                 AppTextFormField(
                   controller: _phoneController,
-                  height: AppSpacing.h_56,
-                  hintText: 'Enter your phone',
+                  hint: 'Enter your phone',
                   keyboardType: TextInputType.phone,
                   validator: (value) => Validators.validateName(value),
-                  prefixIcon: Icon(Icons.phone_callback_outlined),
+                  prefixIcon: Icons.phone_callback_outlined,
                 ),
                 AppSpacing.h_12.verticalSpace,
                 AppTextFormField(
                   controller: _addressController,
-                  height: AppSpacing.h_56,
-                  hintText: 'Enter your Address',
+                  hint: 'Enter your Address',
 
                   keyboardType: TextInputType.text,
                   validator: (value) => Validators.validateName(value),
-                  prefixIcon: Icon(Icons.location_on_outlined),
+                  prefixIcon: Icons.location_on_outlined,
                 ),
 
                 AppSpacing.h_24.verticalSpace,

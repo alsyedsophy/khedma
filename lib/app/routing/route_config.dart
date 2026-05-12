@@ -9,7 +9,8 @@ import 'package:khedma/app/routing/router_notifier.dart';
 import 'package:khedma/app/splash_screen.dart';
 import 'package:khedma/features/Notification/presentation/screens/provider_notification.dart';
 import 'package:khedma/features/Notification/presentation/screens/service_notification.dart';
-import 'package:khedma/features/Profile/Presentation/screens/profile_screen.dart';
+import 'package:khedma/features/Profile/Presentation/screens/provider/editing_profile.dart';
+import 'package:khedma/features/Profile/Presentation/screens/provider/profile_screen.dart';
 import 'package:khedma/features/Services/presentation/screens/Provider/provider_home.dart';
 import 'package:khedma/features/Services/presentation/screens/Provider/provider_shell.dart';
 import 'package:khedma/features/Services/presentation/screens/Service/service_home.dart';
@@ -88,6 +89,10 @@ class RouteConfig {
 
     // إذا كان مسجل الدخول ولكن في مسار عام → نوجهه حسب حالته
     if (_publicRoutes.contains(currentPath)) {
+      return _routeForStatus(authState, context);
+    }
+
+    if (currentPath == AppRoutes.splash) {
       return _routeForStatus(authState, context);
     }
 
@@ -203,6 +208,11 @@ class RouteConfig {
       path: AppRoutes.home,
       name: AppRoutes.home,
       builder: (context, state) => Home(),
+    ),
+    GoRoute(
+      path: AppRoutes.editingProfile,
+      name: AppRoutes.editingProfile,
+      builder: (context, state) => EditingProfile(),
     ),
 
     //? Service Shell Route

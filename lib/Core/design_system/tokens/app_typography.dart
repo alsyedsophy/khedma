@@ -12,7 +12,7 @@ class AppTypography {
     fontFamily: fontFamily,
   );
   static const TextStyle headlineMedium = TextStyle(
-    fontSize: 24,
+    fontSize: 28,
     fontWeight: FontWeight.w600,
     fontFamily: fontFamily,
   );
