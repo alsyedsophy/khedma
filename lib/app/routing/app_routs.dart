@@ -30,6 +30,7 @@ class AppRoutes {
   static const String providerNotifications = '/provider/notification';
   static const String providerChat = '/provider/chat';
   static const String providerProfile = '/provider/profile';
+  static const String editingProfile = '/provider/editing-profile';
   static const String providerSubscription = '/provider/subscription';
   static const String browseServices = '/provider/browse-services';
   static const String applyService = '/provider/apply';

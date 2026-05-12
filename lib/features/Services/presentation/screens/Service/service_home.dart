@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
 import 'package:khedma/core/extensions/app_extensions.dart';
-import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
+import 'package:khedma/features/auth/presentation/widgets/app_logo_widget.dart';
 
 class ServiceHome extends StatefulWidget {
   const ServiceHome({super.key});
@@ -19,7 +19,7 @@ class _ServiceHomeState extends State<ServiceHome> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppSpacing.h_24.verticalSpace,
-            LogoAndBack(),
+            AppLogoWidget(),
             AppSpacing.h_24.verticalSpace,
             Text("Service Home"),
           ],

@@ -17,6 +17,7 @@ class AppButton extends StatelessWidget {
     this.width,
     this.height = 56,
     this.context,
+    this.labelStyle,
   });
   final String label;
   final VoidCallback? onPressed;
@@ -26,6 +27,7 @@ class AppButton extends StatelessWidget {
   final double? width;
   final double height;
   final BuildContext? context;
+  final TextStyle? labelStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +46,11 @@ class AppButton extends StatelessWidget {
               ],
               Text(
                 label,
-                style: AppTypography.headlineMedium.copyWith(
-                  color: AppColors.lightBackground,
-                ),
+                style:
+                    labelStyle ??
+                    AppTypography.headlineMedium.copyWith(
+                      color: AppColors.lightBackground,
+                    ),
               ),
             ],
           );

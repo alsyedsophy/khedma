@@ -8,4 +8,8 @@ extension NumExtensions on num {
       EdgeInsets.symmetric(horizontal: toDouble());
   EdgeInsets get verticalPadding => EdgeInsets.symmetric(vertical: toDouble());
   BorderRadius get borderRaduis => BorderRadius.circular(toDouble());
+  BorderRadius get topBorderRaduis => BorderRadius.only(
+    topLeft: Radius.circular(toDouble()),
+    topRight: Radius.circular(toDouble()),
+  );
 }
