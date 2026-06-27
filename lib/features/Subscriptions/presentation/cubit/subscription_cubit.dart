@@ -9,7 +9,6 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
   final PurchasePlanUseCase purchasePlanUseCase;
   final GetCurrentSubUseCase getCurrentSubscriptionUseCase;
   final RestorePurchasesUseCase restorePurchasesUseCase;
-  final VerifySubUseCase verifySubUseCase;
   final CheckQuotasUseCase checkQuotaUseCase;
   final IncrementQuotaUseCase incrementQuotaUseCase;
 
@@ -18,7 +17,6 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     required this.purchasePlanUseCase,
     required this.getCurrentSubscriptionUseCase,
     required this.restorePurchasesUseCase,
-    required this.verifySubUseCase,
     required this.checkQuotaUseCase,
     required this.incrementQuotaUseCase,
   }) : super(SubscriptionInitial());
@@ -59,18 +57,18 @@ class SubscriptionCubit extends Cubit<SubscriptionState> {
     );
   }
 
-  Future<void> checkQuota(String userId, {required bool isClient}) async {
-    final result = await checkQuotaUseCase(userId, isClient: isClient);
+  Future<void> checkQuota(String userId) async {
+    final result = await checkQuotaUseCase(userId);
     result.fold(
       (failure) => emit(SubscriptionError(failure.message)),
       (hasQuota) => emit(HasQuotaState(hasQuota)),
     );
   }
 
-  Future<void> incrementQuota(String userId, {required bool isClient}) async {
+  Future<void> incrementQuota(String userId) async {
     emit(SubscriptionLoading());
 
-    final result = await incrementQuotaUseCase(userId, isClient: isClient);
+    final result = await incrementQuotaUseCase(userId);
 
     result.fold((failure) => emit(SubscriptionError(failure.message)), (
       _,

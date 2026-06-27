@@ -5,8 +5,7 @@ class SubscriptionModel extends SubscriptionEntity {
     required super.id,
     required super.planId,
     required super.purchaseDate,
-    required super.remainingRequests,
-    required super.remainingOffers,
+    required super.remainingCredits,
     required super.isActive,
   });
 
@@ -20,8 +19,7 @@ class SubscriptionModel extends SubscriptionEntity {
       purchaseDate: DateTime.parse(
         data['purchaseDate'] ?? DateTime.now().toIso8601String(),
       ),
-      remainingRequests: data['remainingRequests'] ?? 0,
-      remainingOffers: data['remainingOffers'] ?? 0,
+      remainingCredits: data['remainingCredits'] ?? 0,
       isActive: data['isActive'] ?? false,
     );
   }
@@ -31,8 +29,7 @@ class SubscriptionModel extends SubscriptionEntity {
       'id': id,
       'planId': planId,
       'purchaseDate': purchaseDate.toIso8601String(),
-      'remainingRequests': remainingRequests,
-      'remainingOffers': remainingOffers,
+      'remainingCredits': remainingCredits,
       'isActive': isActive,
     };
   }
@@ -42,8 +39,7 @@ class SubscriptionModel extends SubscriptionEntity {
       id: entity.id,
       planId: entity.planId,
       purchaseDate: entity.purchaseDate,
-      remainingRequests: entity.remainingRequests,
-      remainingOffers: entity.remainingOffers,
+      remainingCredits: entity.remainingCredits,
       isActive: entity.isActive,
     );
   }

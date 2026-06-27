@@ -8,9 +8,8 @@ abstract class SubscriptionRemoteDataSource {
   Future<SubscriptionModel> purchasePlan(PlanModel plan, String userId);
   Future<SubscriptionModel> getCurrentSubscription(String userId);
   Future<SubscriptionModel> restorePurchases(String userId);
-  Future<bool> isSubscriptionActive(String userId);
-  Future<bool> hasQuota(String userId, {required bool isClient});
-  Future<void> incrementQuota(String userId, {required bool isClient});
+  Future<bool> hasQuota(String userId);
+  Future<void> incrementQuota(String userId);
 }
 
 class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
@@ -27,7 +26,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   @override
   Future<List<PlanModel>> getPlans() async {
     try {
-      final snapshot = await _plansCollection.get();
+      final snapshot = await _plansCollection.orderBy('price').get();
       return snapshot.docs
           .map(
             (doc) => PlanModel.fromFirestore(
@@ -50,8 +49,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
         id: 'sub_$userId',
         planId: plan.id,
         purchaseDate: DateTime.now(),
-        remainingRequests: plan.maxRequests,
-        remainingOffers: plan.maxOffers,
+        remainingCredits: plan.credits,
         isActive: true,
       );
 
@@ -69,7 +67,7 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
       final doc = await _subscriptionsCollection.doc(userId).get();
 
       if (!doc.exists) {
-        throw ServerException(message: "No active subscription found");
+        throw CacheException("No active subscription found");
       }
 
       return SubscriptionModel.fromFirestore(
@@ -94,52 +92,34 @@ class SubscriptionRemoteDataSourceImpl implements SubscriptionRemoteDataSource {
   }
 
   @override
-  Future<bool> isSubscriptionActive(String userId) async {
-    try {
-      final subscription = await getCurrentSubscription(userId);
-      return subscription.isActive &&
-          (subscription.remainingRequests > 0 ||
-              subscription.remainingOffers > 0);
-    } catch (e) {
-      throw ServerException(message: e.toString());
-    }
-  }
-
-  @override
-  Future<bool> hasQuota(String userId, {required bool isClient}) async {
+  Future<bool> hasQuota(String userId) async {
     try {
       final subscription = await getCurrentSubscription(userId);
 
       if (!subscription.isActive) return false;
 
-      if (isClient) {
-        return subscription.remainingRequests > 0;
-      } else {
-        return subscription.remainingOffers > 0;
-      }
+      return subscription.remainingCredits > 0;
     } catch (e) {
       throw ServerException(message: e.toString());
     }
   }
 
   @override
-  Future<void> incrementQuota(String userId, {required bool isClient}) async {
+  Future<void> incrementQuota(String userId) async {
     try {
       final docRef = _subscriptionsCollection.doc(userId);
 
       await _firestore.runTransaction((transaction) async {
         final snapshot = await transaction.get(docRef);
         if (!snapshot.exists) return;
-
-        if (isClient) {
-          transaction.update(docRef, {
-            'remainingRequests': FieldValue.increment(-1),
-          });
-        } else {
-          transaction.update(docRef, {
-            'remainingOffers': FieldValue.increment(-1),
-          });
+        final cridets = snapshot['remainingCredits'];
+        if (cridets <= 0) {
+          throw CacheException('No Found Quotas');
         }
+
+        transaction.update(docRef, {
+          'remainingCredits': FieldValue.increment(-1),
+        });
       });
     } catch (e) {
       throw ServerException(message: e.toString());

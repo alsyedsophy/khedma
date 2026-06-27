@@ -7,15 +7,10 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 
 abstract class ChatRemoteDataSource {
-  // إنشاء محادثة جديدة (بعد قبول العرض)
   Future<ConversationModel> createConversation(ConversationModel conversation);
-  // إرسال رسالة
   Future<MessageModel> sendMessage(String conversationId, MessageModel message);
-  // جلب قائمة المحادثات الخاصة بمستخدم
   Stream<List<ConversationModel>> getConversations(String userId);
-  // جلب رسائل محادثة معينة
   Stream<List<MessageModel>> getMessages(String conversationId);
-  // رفع صورة للمحادثة
   Future<String> uploadChatImage(String fileName, String filePath);
 }
 
@@ -84,14 +79,18 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
 
   @override
   Stream<List<ConversationModel>> getConversations(String userId) {
-    return _firestore
-        .collection('chats')
+    return _chatCollection
         .where('participants', arrayContains: userId)
         .orderBy('lastMessageTime', descending: true)
         .snapshots()
         .map(
           (snapshot) => snapshot.docs
-              .map((doc) => ConversationModel.fromFirestore(doc.data(), doc.id))
+              .map(
+                (doc) => ConversationModel.fromFirestore(
+                  doc.data() as Map<String, dynamic>,
+                  doc.id,
+                ),
+              )
               .toList(),
         )
         .handleError((error) {
@@ -107,16 +106,16 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
           descending: true,
         ) // غيرتها إلى true (الأحدث أولاً)
         .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
+        .map(
+          (snapshot) => snapshot.docs
               .map(
                 (doc) => MessageModel.fromFirestore(
                   doc.data() as Map<String, dynamic>,
                   doc.id,
                 ),
               )
-              .toList();
-        })
+              .toList(),
+        )
         .handleError((error) {
           throw ServerException(message: error.toString());
         });

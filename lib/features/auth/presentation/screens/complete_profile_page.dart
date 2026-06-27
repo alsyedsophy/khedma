@@ -10,7 +10,6 @@ import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
-import 'package:khedma/features/auth/presentation/screens/login.dart';
 import 'package:khedma/core/Widgets/app_text_form_field.dart';
 import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
 

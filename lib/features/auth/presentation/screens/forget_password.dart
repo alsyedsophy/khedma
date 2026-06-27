@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:khedma/core/Utils/validators.dart';
 import 'package:khedma/core/Widgets/app_button.dart';
 import 'package:khedma/core/Widgets/app_loading.dart';
 import 'package:khedma/core/design_system/tokens/app_spacing.dart';
@@ -9,8 +8,6 @@ import 'package:khedma/core/extensions/app_extensions.dart';
 import 'package:khedma/features/auth/presentation/Mixin/auth_event_listener_mixin.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
-import 'package:khedma/features/auth/presentation/screens/login.dart';
-import 'package:khedma/core/Widgets/app_text_form_field.dart';
 import 'package:khedma/features/auth/presentation/widgets/email_field.dart';
 import 'package:khedma/features/auth/presentation/widgets/logo_and_back.dart';
 

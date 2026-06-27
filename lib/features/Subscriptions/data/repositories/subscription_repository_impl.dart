@@ -96,33 +96,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<Either<Failure, bool>> isSubscriptionActive(String userId) async {
+  Future<Either<Failure, bool>> hasCridets(String userId) async {
     if (!await networkInfo.isConnected) {
       return Left(NetworkFailure());
     }
 
     try {
-      final isActive = await remoteDataSource.isSubscriptionActive(userId);
-      return Right(isActive);
-    } catch (e) {
-      return Left(ServerFailure(e.toString()));
-    }
-  }
-
-  @override
-  Future<Either<Failure, bool>> hasQuota(
-    String userId, {
-    required bool isClient,
-  }) async {
-    if (!await networkInfo.isConnected) {
-      return Left(NetworkFailure());
-    }
-
-    try {
-      final hasQuota = await remoteDataSource.hasQuota(
-        userId,
-        isClient: isClient,
-      );
+      final hasQuota = await remoteDataSource.hasQuota(userId);
       return Right(hasQuota);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
@@ -130,16 +110,13 @@ class SubscriptionRepositoryImpl implements SubscriptionRepository {
   }
 
   @override
-  Future<Either<Failure, void>> incrementQuota(
-    String userId, {
-    required bool isClient,
-  }) async {
+  Future<Either<Failure, void>> consumeCridet(String userId) async {
     if (!await networkInfo.isConnected) {
       return Left(NetworkFailure());
     }
 
     try {
-      await remoteDataSource.incrementQuota(userId, isClient: isClient);
+      await remoteDataSource.incrementQuota(userId);
       return const Right(null);
     } catch (e) {
       throw ServerException(message: e.toString());

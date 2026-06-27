@@ -4,16 +4,14 @@ class SubscriptionEntity extends Equatable {
   final String id;
   final String planId;
   final DateTime purchaseDate;
-  final int remainingRequests;
-  final int remainingOffers;
+  final int remainingCredits;
   final bool isActive;
 
   const SubscriptionEntity({
     required this.id,
     required this.planId,
     required this.purchaseDate,
-    required this.remainingRequests,
-    required this.remainingOffers,
+    required this.remainingCredits,
     required this.isActive,
   });
 
@@ -21,16 +19,14 @@ class SubscriptionEntity extends Equatable {
     String? id,
     String? planId,
     DateTime? purchaseDate,
-    int? remainingRequests,
-    int? remainingOffers,
+    int? remainingCredits,
     bool? isActive,
   }) {
     return SubscriptionEntity(
       id: id ?? this.id,
       planId: planId ?? this.planId,
       purchaseDate: purchaseDate ?? this.purchaseDate,
-      remainingRequests: remainingRequests ?? this.remainingRequests,
-      remainingOffers: remainingOffers ?? this.remainingOffers,
+      remainingCredits: remainingCredits ?? this.remainingCredits,
       isActive: isActive ?? this.isActive,
     );
   }
@@ -40,11 +36,9 @@ class SubscriptionEntity extends Equatable {
     id,
     planId,
     purchaseDate,
-    remainingRequests,
-    remainingOffers,
+    remainingCredits,
     isActive,
   ];
 
-  bool get isExpired =>
-      !isActive || remainingRequests <= 0 && remainingOffers <= 0;
+  bool get isExpired => !isActive || remainingCredits <= 0;
 }

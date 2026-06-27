@@ -303,7 +303,6 @@ Future<void> init() async {
   sl.registerLazySingleton(() => IncrementQuotaUseCase(sl()));
   sl.registerLazySingleton(() => PurchasePlanUseCase(sl()));
   sl.registerLazySingleton(() => RestorePurchasesUseCase(sl()));
-  sl.registerLazySingleton(() => VerifySubUseCase(sl()));
 
   // Cubits
   sl.registerLazySingleton(
@@ -312,7 +311,6 @@ Future<void> init() async {
       purchasePlanUseCase: sl(),
       getCurrentSubscriptionUseCase: sl(),
       restorePurchasesUseCase: sl(),
-      verifySubUseCase: sl(),
       checkQuotaUseCase: sl(),
       incrementQuotaUseCase: sl(),
     ),

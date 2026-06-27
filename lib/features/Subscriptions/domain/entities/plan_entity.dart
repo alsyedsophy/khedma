@@ -5,8 +5,7 @@ class PlanEntity extends Equatable {
   final String name;
   final double price;
   final String currency;
-  final int maxRequests;
-  final int maxOffers;
+  final int credits;
   final String? description;
   final String? storeProductIdAndroid;
   final String? storeProductIdIos;
@@ -16,8 +15,7 @@ class PlanEntity extends Equatable {
     required this.name,
     required this.price,
     required this.currency,
-    required this.maxRequests,
-    required this.maxOffers,
+    required this.credits,
     this.description,
     this.storeProductIdAndroid,
     this.storeProductIdIos,
@@ -28,8 +26,7 @@ class PlanEntity extends Equatable {
     String? name,
     double? price,
     String? currency,
-    int? maxRequests,
-    int? maxOffers,
+    int? credits,
     String? description,
     String? storeProductIdAndroid,
     String? storeProductIdIos,
@@ -39,8 +36,7 @@ class PlanEntity extends Equatable {
       name: name ?? this.name,
       price: price ?? this.price,
       currency: currency ?? this.currency,
-      maxRequests: maxRequests ?? this.maxRequests,
-      maxOffers: maxOffers ?? this.maxOffers,
+      credits: credits ?? this.credits,
       description: description ?? this.description,
       storeProductIdAndroid:
           storeProductIdAndroid ?? this.storeProductIdAndroid,
@@ -54,8 +50,7 @@ class PlanEntity extends Equatable {
     name,
     price,
     currency,
-    maxRequests,
-    maxOffers,
+    credits,
     description,
     storeProductIdAndroid,
     storeProductIdIos,

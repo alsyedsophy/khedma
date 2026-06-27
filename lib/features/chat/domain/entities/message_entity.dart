@@ -5,7 +5,7 @@ class MessageEntity extends Equatable {
   final String senderId;
   final String text;
   final DateTime timestamp;
-  final String? imageUrl; // لاحقاً
+  final String? imageUrl;
 
   const MessageEntity({
     required this.id,
