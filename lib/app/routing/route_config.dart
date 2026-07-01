@@ -25,6 +25,7 @@ import 'package:khedma/features/auth/presentation/screens/user_role_screen.dart.
 import 'package:khedma/features/auth/presentation/screens/register.dart';
 import 'package:khedma/features/auth/presentation/screens/verify_email.dart';
 import 'package:khedma/features/chat/presentation/screens/chat_screen.dart';
+import 'package:khedma/features/chat/presentation/screens/conversation_screen.dart';
 
 class RouteConfig {
   final RouterNotifier notifier;
@@ -214,6 +215,11 @@ class RouteConfig {
       name: AppRoutes.editingProfile,
       builder: (context, state) => EditingProfile(),
     ),
+    GoRoute(
+      path: AppRoutes.providerChat,
+      name: AppRoutes.providerChat,
+      builder: (context, state) => ChatScreen(),
+    ),
 
     //? Service Shell Route
     _serviceShellRoute(),
@@ -253,9 +259,9 @@ class RouteConfig {
           navigatorKey: GlobalKey<NavigatorState>(),
           routes: [
             GoRoute(
-              path: AppRoutes.providerChat,
-              name: AppRoutes.providerChat,
-              builder: (context, state) => ChatScreen(),
+              path: AppRoutes.providerConversation,
+              name: AppRoutes.providerConversation,
+              builder: (context, state) => ConversationScreen(),
             ),
           ],
         ),
@@ -305,7 +311,7 @@ class RouteConfig {
             GoRoute(
               path: AppRoutes.serviceChat,
               name: AppRoutes.serviceChat,
-              builder: (context, state) => ChatScreen(),
+              builder: (context, state) => ConversationScreen(),
             ),
           ],
         ),

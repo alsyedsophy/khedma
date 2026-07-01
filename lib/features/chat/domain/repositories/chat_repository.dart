@@ -11,9 +11,7 @@ abstract class ChatRepository {
     String conversationId,
     MessageEntity message,
   );
-  Future<Either<Failure, Stream<List<ConversationEntity>>>> getConversations(
-    String userId,
-  );
+  Future<Either<Failure, Stream<List<ConversationEntity>>>> getConversations();
   Future<Either<Failure, Stream<List<MessageEntity>>>> getMessages(
     String conversationId,
   );

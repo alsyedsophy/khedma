@@ -30,10 +30,7 @@ class BannerSearchBar extends StatelessWidget {
             hintText: 'Search here..',
             hintStyle: const TextStyle(color: Colors.grey),
             prefixIcon: const Icon(Icons.search, color: AppColors.black),
-            suffixIcon: const Icon(
-              Icons.tune,
-              color: AppColors.black,
-            ), // أيقونة الفلتر
+            suffixIcon: const Icon(Icons.tune, color: AppColors.black),
             border: InputBorder.none,
             contentPadding: AppSpacing.h_16.verticalPadding,
           ),

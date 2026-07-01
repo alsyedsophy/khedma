@@ -15,18 +15,18 @@ class ConversationListCubit extends Cubit<ConversationState> {
     required this.createConversationUseCase,
   }) : super(ConversationInitial());
 
-  Future<void> getMessages(String conversationId) async {
+  Future<void> getConversations() async {
     emit(ConversationLoading());
 
-    final result = await getConversationsUseCase(conversationId);
+    final result = await getConversationsUseCase();
 
     result.fold(
       (failure) => emit(ConversationError(message: failure.message)),
       (stream) {
         _sub?.cancel();
         _sub = stream.listen(
-          (messages) {
-            emit(ConversationLoaded(conversations: messages));
+          (conversations) {
+            emit(ConversationLoaded(conversations: conversations));
           },
           onError: (error) {
             emit(ConversationError(message: error.toString()));

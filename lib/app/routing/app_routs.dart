@@ -28,6 +28,7 @@ class AppRoutes {
   static const String providerShell = '/provider-shell';
   static const String providerHome = '/provider/home';
   static const String providerNotifications = '/provider/notification';
+  static const String providerConversation = '/provider/conversation';
   static const String providerChat = '/provider/chat';
   static const String providerProfile = '/provider/profile';
   static const String editingProfile = '/provider/editing-profile';
