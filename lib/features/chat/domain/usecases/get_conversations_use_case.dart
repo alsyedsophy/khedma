@@ -7,9 +7,7 @@ import '../repositories/chat_repository.dart';
 class GetConversationsUseCase {
   final ChatRepository repository;
   GetConversationsUseCase(this.repository);
-  Future<Either<Failure, Stream<List<ConversationEntity>>>> call(
-    String userId,
-  ) async {
-    return await repository.getConversations(userId);
+  Future<Either<Failure, Stream<List<ConversationEntity>>>> call() async {
+    return await repository.getConversations();
   }
 }

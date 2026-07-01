@@ -1,3 +1,6 @@
+import 'dart:developer';
+
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:khedma/core/errors/extentions.dart';
 
 import '../models/message_model.dart';
@@ -9,7 +12,7 @@ import 'dart:io';
 abstract class ChatRemoteDataSource {
   Future<ConversationModel> createConversation(ConversationModel conversation);
   Future<MessageModel> sendMessage(String conversationId, MessageModel message);
-  Stream<List<ConversationModel>> getConversations(String userId);
+  Stream<List<ConversationModel>> getConversations();
   Stream<List<MessageModel>> getMessages(String conversationId);
   Future<String> uploadChatImage(String fileName, String filePath);
 }
@@ -23,6 +26,8 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
     FirebaseStorage? storage,
   ) : _firestore = firestore ?? FirebaseFirestore.instance,
       _storage = storage ?? FirebaseStorage.instance;
+
+  final userId = FirebaseAuth.instance.currentUser?.uid;
 
   CollectionReference get _chatCollection => _firestore.collection('Chats');
   CollectionReference _messagesCollection(String docId) =>
@@ -58,7 +63,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
       final chatRef = _chatCollection.doc(conversationId);
       final newMessage = MessageModel(
         id: docRef.id,
-        senderId: message.senderId,
+        senderId: userId!,
         text: message.text,
         timestamp: message.timestamp,
         imageUrl: message.imageUrl,
@@ -78,7 +83,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
   }
 
   @override
-  Stream<List<ConversationModel>> getConversations(String userId) {
+  Stream<List<ConversationModel>> getConversations() {
     return _chatCollection
         .where('participants', arrayContains: userId)
         .orderBy('lastMessageTime', descending: true)
@@ -94,6 +99,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
               .toList(),
         )
         .handleError((error) {
+          log(error.toString());
           throw ServerException(message: error.toString());
         });
   }
@@ -117,6 +123,7 @@ class ChatRemoteDataSourceImpl implements ChatRemoteDataSource {
               .toList(),
         )
         .handleError((error) {
+          log(error.toString());
           throw ServerException(message: error.toString());
         });
   }

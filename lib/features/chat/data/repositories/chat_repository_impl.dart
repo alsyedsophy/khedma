@@ -51,14 +51,13 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
-  Future<Either<Failure, Stream<List<ConversationEntity>>>> getConversations(
-    String userId,
-  ) async {
+  Future<Either<Failure, Stream<List<ConversationEntity>>>>
+  getConversations() async {
     if (!await networkInfo.isConnected) {
       return Left(NetworkFailure());
     }
     try {
-      final stream = remoteDataSource.getConversations(userId);
+      final stream = remoteDataSource.getConversations();
       // .map(
       //   (list) => list.map((e) => e as ConversationEntity).toList(),
       // ).handleError((error) {
