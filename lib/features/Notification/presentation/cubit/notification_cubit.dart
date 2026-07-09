@@ -1,6 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:khedma/core/Utils/use_case.dart';
-import 'package:khedma/features/Notification/domain/entities/notifcation_entity.dart';
 import 'package:khedma/features/Notification/domain/usecases/get_notifications_use_case.dart';
 import 'package:khedma/features/Notification/domain/usecases/mark_as_read_use_case.dart';
 import 'package:khedma/features/Notification/domain/usecases/mark_all_as_read_use_case.dart';

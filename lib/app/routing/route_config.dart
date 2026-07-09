@@ -1,12 +1,16 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khedma/core/Widgets/error_page.dart';
 import 'package:khedma/core/constants/app_emums.dart';
 import 'package:khedma/app/routing/app_routs.dart';
 import 'package:khedma/app/routing/router_notifier.dart';
 import 'package:khedma/app/splash_screen.dart';
+import 'package:khedma/core/di/dependency_injections.dart';
+import 'package:khedma/features/Notification/presentation/cubit/notification_settings_cubit.dart';
+import 'package:khedma/features/Notification/presentation/screens/notification_setting_screen.dart';
 import 'package:khedma/features/Notification/presentation/screens/provider_notification.dart';
 import 'package:khedma/features/Notification/presentation/screens/service_notification.dart';
 import 'package:khedma/features/Profile/Presentation/screens/provider/editing_profile.dart';
@@ -15,6 +19,7 @@ import 'package:khedma/features/Services/presentation/screens/Provider/provider_
 import 'package:khedma/features/Services/presentation/screens/Provider/provider_shell.dart';
 import 'package:khedma/features/Services/presentation/screens/Service/service_home.dart';
 import 'package:khedma/features/Services/presentation/screens/Service/service_shell.dart';
+import 'package:khedma/features/auth/presentation/cubit/Auth/auth_cubit.dart';
 import 'package:khedma/features/auth/presentation/cubit/Auth/auth_state.dart';
 import 'package:khedma/features/auth/presentation/screens/complete_profile_page.dart';
 import 'package:khedma/features/auth/presentation/screens/forget_password.dart';
@@ -219,6 +224,21 @@ class RouteConfig {
       path: AppRoutes.providerChat,
       name: AppRoutes.providerChat,
       builder: (context, state) => ChatScreen(),
+    ),
+    GoRoute(
+      path: AppRoutes.notificationSettings,
+      name: AppRoutes.notificationSettings,
+      builder: (context, state) => BlocProvider(
+        create: (context) {
+          final cubit = sl<NotificationSettingsCubit>();
+          final userId = sl<AuthCubit>().state.user?.id;
+          if (userId != null) {
+            cubit.load(userId: userId);
+          }
+          return cubit;
+        },
+        child: NotificationSettingScreen(),
+      ),
     ),
 
     //? Service Shell Route

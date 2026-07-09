@@ -11,6 +11,7 @@ class NotificationModel extends NotificationEntity {
     required super.timestamp,
     super.relatedServiceId,
     super.relatedRequestId,
+    super.payload,
   });
 
   factory NotificationModel.fromFirestore(
@@ -26,6 +27,9 @@ class NotificationModel extends NotificationEntity {
       timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
       relatedServiceId: data['relatedServiceId'] ?? '',
       relatedRequestId: data['relatedRequestId'] ?? '',
+      payload: data['payload'] != null
+          ? Map<String, dynamic>.from(data['payload'])
+          : null,
     );
   }
 
@@ -38,6 +42,7 @@ class NotificationModel extends NotificationEntity {
       'timestamp': Timestamp.fromDate(timestamp),
       'relatedServiceId': relatedServiceId,
       'relatedRequestId': relatedRequestId,
+      'payload': payload,
     };
   }
 
@@ -51,20 +56,7 @@ class NotificationModel extends NotificationEntity {
       timestamp: entity.timestamp,
       relatedServiceId: entity.relatedServiceId,
       relatedRequestId: entity.relatedRequestId,
-    );
-  }
-
-  factory NotificationModel.fromPreferencesFirestore(
-    Map<String, dynamic> data,
-    String id,
-  ) {
-    return NotificationModel(
-      id: id,
-      title: '',
-      body: '',
-      type: NotificationType.general,
-      isRead: true,
-      timestamp: DateTime.now(),
+      payload: entity.payload,
     );
   }
 }
@@ -80,17 +72,13 @@ class NotificationPreferencesModel extends NotificationPreferences {
   factory NotificationPreferencesModel.fromFirestore(
     Map<String, dynamic> data,
   ) {
-    final categoryToggles =
-        (data['categoryToggles'] as Map<String, dynamic>?)?.map(
-          (key, value) => MapEntry(key, value as bool),
-        ) ??
-        {};
-
     return NotificationPreferencesModel(
       generalEnabled: data['generalEnabled'] ?? true,
       soundEnabled: data['soundEnabled'] ?? true,
       vibrateEnabled: data['vibrateEnabled'] ?? true,
-      categoryToggles: categoryToggles,
+      categoryToggles: data['categoryToggles'] != null
+          ? Map<String, bool>.from(data['categoryToggles'])
+          : {},
     );
   }
 

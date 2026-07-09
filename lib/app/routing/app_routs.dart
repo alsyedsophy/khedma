@@ -18,6 +18,7 @@ class AppRoutes {
   static const String serviceHome = '/service/home';
   static const String serviceNotifications = '/service/notification';
   static const String serviceChat = '/service/chat';
+  static const String notificationSettings = '/notification-settings';
   static const String serviceProfile = '/service/profile';
   static const String serviceSubscription = '/service/subscription';
   static const String postService = '/service/post';

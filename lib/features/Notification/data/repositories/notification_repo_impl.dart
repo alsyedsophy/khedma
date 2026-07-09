@@ -21,14 +21,14 @@ class NotificationRepoImpl implements NotificationRepo {
     bool? isRead,
     int? limit,
     DateTime? startAfter,
-    String? userId,
+    required String userId,
   }) async {
     if (!await _networkInfo.isConnected) {
       return const Left(NetworkFailure());
     }
     try {
       final result = await _remoteDataSource.getNotifications(
-        userId: userId!,
+        userId: userId,
         type: type,
         isRead: isRead,
         limit: limit,

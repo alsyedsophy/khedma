@@ -42,6 +42,12 @@ import 'package:khedma/features/chat/domain/usecases/get_messages_use_case.dart'
 import 'package:khedma/features/chat/domain/usecases/send_message_use_case.dart';
 import 'package:khedma/features/chat/presentation/cubits/chat/chat_cubit.dart';
 import 'package:khedma/features/chat/presentation/cubits/conversation/conversation_list_cubit.dart';
+import 'package:khedma/features/Notification/data/datasources/notification_remote_data_source.dart';
+import 'package:khedma/features/Notification/data/repositories/notification_repo_impl.dart';
+import 'package:khedma/features/Notification/domain/repositories/notification_repo.dart';
+import 'package:khedma/features/Notification/domain/usecases/notificaiton_usecases.dart';
+import 'package:khedma/features/Notification/presentation/cubit/notification_cubit.dart';
+import 'package:khedma/features/Notification/presentation/cubit/notification_settings_cubit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
@@ -159,10 +165,10 @@ Future<void> init() async {
   );
 
   // Use cases
-  sl.registerLazySingleton(() => GetCategoriesUseCase(repo: sl()));
+  sl.registerFactory(() => GetCategoriesUseCase(repo: sl()));
 
   // Bloc
-  sl.registerLazySingleton(() => CategoriesBloc(sl()));
+  sl.registerFactory(() => CategoriesBloc(sl()));
 
   //! ======================================================
   //? ================ Services Feature ==================
@@ -218,7 +224,7 @@ Future<void> init() async {
   // Cubits
 
   // ========= Listings ===========
-  sl.registerLazySingleton(
+  sl.registerFactory(
     () => ServiceListingCubit(
       createServiceListing: sl(),
       getAllServiceListings: sl(),
@@ -229,7 +235,7 @@ Future<void> init() async {
   );
 
   // ========== Offers =========
-  sl.registerLazySingleton(
+  sl.registerFactory(
     () => ServiceOfferCubit(
       createOffer: sl(),
       getOffersForRequest: sl(),
@@ -240,7 +246,7 @@ Future<void> init() async {
   );
 
   // ========== Requests =========
-  sl.registerLazySingleton(
+  sl.registerFactory(
     () => ServiceRequestCubit(
       createServiceRequest: sl(),
       getMyRequests: sl(),
@@ -279,7 +285,7 @@ Future<void> init() async {
     ),
   );
   // Chat
-  sl.registerLazySingleton(
+  sl.registerFactory(
     () => ChatCubit(getMessagesUseCase: sl(), sendMessageUseCase: sl()),
   );
 
@@ -305,7 +311,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => RestorePurchasesUseCase(sl()));
 
   // Cubits
-  sl.registerLazySingleton(
+  sl.registerFactory(
     () => SubscriptionCubit(
       getPlansUseCase: sl(),
       purchasePlanUseCase: sl(),
@@ -313,6 +319,41 @@ Future<void> init() async {
       restorePurchasesUseCase: sl(),
       checkQuotaUseCase: sl(),
       incrementQuotaUseCase: sl(),
+    ),
+  );
+
+  //! =========================================
+  //? Notifications
+
+  // Data Source
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(firestore: sl()),
+  );
+
+  // Repository
+  sl.registerLazySingleton<NotificationRepo>(
+    () => NotificationRepoImpl(remoteDataSource: sl(), networkInfo: sl()),
+  );
+
+  // Usecases
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => GetPreferencesUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePreferencesUseCase(sl()));
+
+  // Cubits
+  sl.registerFactory(
+    () => NotificationCubit(
+      getNotifications: sl(),
+      markAsRead: sl(),
+      markAllAsRead: sl(),
+    ),
+  );
+  sl.registerFactory(
+    () => NotificationSettingsCubit(
+      getPreferences: sl(),
+      updatePreferences: sl(),
     ),
   );
 }

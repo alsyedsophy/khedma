@@ -21,7 +21,7 @@ class ListProfileCard extends StatelessWidget {
         AppSpacing.h_12.verticalSpace,
         ProfileDataCard(
           onTap: () {},
-          title: 'Notification',
+          title: 'My Providers',
           imageUrl: AppAssets.woman,
         ),
         AppSpacing.h_12.verticalSpace,

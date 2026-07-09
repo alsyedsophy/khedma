@@ -26,6 +26,7 @@ class NotificationEntity extends Equatable {
   final DateTime timestamp;
   final String? relatedServiceId;
   final String? relatedRequestId;
+  final Map<String, dynamic>? payload;
 
   const NotificationEntity({
     required this.id,
@@ -36,6 +37,7 @@ class NotificationEntity extends Equatable {
     required this.timestamp,
     this.relatedServiceId,
     this.relatedRequestId,
+    this.payload,
   });
 
   NotificationEntity copyWith({
@@ -47,6 +49,7 @@ class NotificationEntity extends Equatable {
     DateTime? timestamp,
     String? relatedServiceId,
     String? relatedRequestId,
+    Map<String, dynamic>? payload,
   }) {
     return NotificationEntity(
       id: id ?? this.id,
@@ -57,21 +60,27 @@ class NotificationEntity extends Equatable {
       timestamp: timestamp ?? this.timestamp,
       relatedServiceId: relatedServiceId ?? this.relatedServiceId,
       relatedRequestId: relatedRequestId ?? this.relatedRequestId,
+      payload: payload != null
+          ? Map<String, dynamic>.from(payload)
+          : this.payload,
     );
   }
 
   @override
   List<Object?> get props => [
-        id,
-        title,
-        body,
-        type,
-        isRead,
-        timestamp,
-        relatedServiceId,
-        relatedRequestId,
-      ];
+    id,
+    title,
+    body,
+    type,
+    isRead,
+    timestamp,
+    relatedServiceId,
+    relatedRequestId,
+    payload,
+  ];
 }
+
+// احتمال مستخدمهاش وملتزمش بال UI => هنفذ الوال ولكن من الممكن انى لن اقوم ببناء ال cubit لها
 
 class NotificationPreferences extends Equatable {
   final bool generalEnabled;
@@ -96,15 +105,17 @@ class NotificationPreferences extends Equatable {
       generalEnabled: generalEnabled ?? this.generalEnabled,
       soundEnabled: soundEnabled ?? this.soundEnabled,
       vibrateEnabled: vibrateEnabled ?? this.vibrateEnabled,
-      categoryToggles: categoryToggles ?? this.categoryToggles,
+      categoryToggles: categoryToggles != null
+          ? Map<String, bool>.from(categoryToggles)
+          : this.categoryToggles,
     );
   }
 
   @override
   List<Object?> get props => [
-        generalEnabled,
-        soundEnabled,
-        vibrateEnabled,
-        categoryToggles,
-      ];
+    generalEnabled,
+    soundEnabled,
+    vibrateEnabled,
+    categoryToggles,
+  ];
 }
