@@ -11,9 +11,9 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   NotificationSettingsCubit({
     required GetPreferencesUseCase getPreferences,
     required UpdatePreferencesUseCase updatePreferences,
-  })  : _getPreferences = getPreferences,
-        _updatePreferences = updatePreferences,
-        super(SettingsInitial());
+  }) : _getPreferences = getPreferences,
+       _updatePreferences = updatePreferences,
+       super(SettingsInitial());
 
   Future<void> load({required String userId}) async {
     emit(SettingsLoading());
@@ -25,36 +25,38 @@ class NotificationSettingsCubit extends Cubit<NotificationSettingsState> {
   }
 
   // Mutate local copy within state; callers should get current prefs via state when loaded.
-  void _updateLocal(void Function(NotificationPreferences) updater) {
+  void _mutate(
+    NotificationPreferences Function(NotificationPreferences) updater,
+  ) {
+    if (isClosed || state is! SettingsLoaded) {
+      return;
+    }
     if (state is SettingsLoaded) {
       final current = (state as SettingsLoaded).preferences;
-      final mutable = NotificationPreferences(
-        generalEnabled: current.generalEnabled,
-        soundEnabled: current.soundEnabled,
-        vibrateEnabled: current.vibrateEnabled,
-        categoryToggles: Map<String, bool>.from(current.categoryToggles),
-      );
-      updater(mutable);
-      emit(SettingsLoaded(mutable));
+      emit(SettingsLoaded(updater(current)));
     }
   }
 
-  void toggleGeneral(bool value) => _updateLocal((p) => p = p.copyWith(generalEnabled: value));
-  void toggleSound(bool value) => _updateLocal((p) => p = p.copyWith(soundEnabled: value));
-  void toggleVibrate(bool value) => _updateLocal((p) => p = p.copyWith(vibrateEnabled: value));
-  void toggleCategory(String key, bool value) => _updateLocal((p) => p = p.copyWith(categoryToggles: {
-        ...p.categoryToggles,
-        key: value,
-      }));
+  void toggleGeneral(bool value) =>
+      _mutate((p) => p.copyWith(generalEnabled: value));
+  void toggleSound(bool value) =>
+      _mutate((p) => p.copyWith(soundEnabled: value));
+  void toggleVibrate(bool value) =>
+      _mutate((p) => p.copyWith(vibrateEnabled: value));
+  void toggleCategory(String key, bool value) => _mutate(
+    (p) => p.copyWith(categoryToggles: {...p.categoryToggles, key: value}),
+  );
 
   Future<void> save({required String userId}) async {
     if (state is! SettingsLoaded) return;
     final prefs = (state as SettingsLoaded).preferences;
     emit(SettingsSaving());
-    final result = await _updatePreferences(UpdatePreferencesParams(prefs, userId));
+    final result = await _updatePreferences(
+      UpdatePreferencesParams(prefs, userId),
+    );
     result.fold(
       (failure) => emit(SettingsError(failure.message)),
-      (_) => emit(SettingsSaved()),
+      (_) => emit(SettingsSaved(prefs)),
     );
   }
 }

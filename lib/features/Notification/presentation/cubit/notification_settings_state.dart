@@ -20,7 +20,12 @@ class SettingsLoaded extends NotificationSettingsState {
 
 class SettingsSaving extends NotificationSettingsState {}
 
-class SettingsSaved extends NotificationSettingsState {}
+class SettingsSaved extends NotificationSettingsState {
+  final NotificationPreferences preferences;
+  const SettingsSaved(this.preferences);
+  @override
+  List<Object?> get props => [preferences];
+}
 
 class SettingsError extends NotificationSettingsState {
   final String message;

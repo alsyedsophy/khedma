@@ -13,6 +13,7 @@ class _EditingProfileState extends State<EditingProfile> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
+      appBar: AppBar(),
       body: SafeArea(child: Column()),
     );
   }
